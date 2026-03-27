@@ -2,9 +2,20 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfile } from '../store/slices/authSlice';
 import { motion } from 'framer-motion';
-import { User, Mail, Camera, Save, ArrowLeft, Loader2, CheckCircle2, Star, Shield, Calendar } from 'lucide-react';
+import { User, Mail, Camera, Save, ArrowLeft, Loader2, CheckCircle2, Star, Shield, Calendar, SlidersHorizontal, BellRing, Volume2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
+
+const PREFERENCES_STORAGE_KEY = 'typingkids.profile.preferences';
+
+const DEFAULT_PREFERENCES = {
+  bio: '',
+  dailyGoalWpm: 60,
+  preferredDifficulty: 'intermediate',
+  keyboardLayout: 'qwerty',
+  soundEnabled: true,
+  emailReminders: false,
+};
 
 const ProfilePage = () => {
   const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
@@ -13,6 +24,8 @@ const ProfilePage = () => {
   const [displayName, setDisplayName] = useState(user?.display_name || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
+  const [showPrefsSaved, setShowPrefsSaved] = useState(false);
 
   const AVATARS = [
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -33,9 +46,35 @@ const ProfilePage = () => {
     }
   }, [isSuccess, isLoading]);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setPreferences((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch {
+      setPreferences(DEFAULT_PREFERENCES);
+    }
+  }, []);
+
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(updateProfile({ display_name: displayName, avatar_url: avatarUrl }));
+  };
+
+  const updatePreference = (key, value) => {
+    setPreferences((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const onSavePreferences = (e) => {
+    e.preventDefault();
+    localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+    setShowPrefsSaved(true);
+    setTimeout(() => setShowPrefsSaved(false), 2500);
   };
 
   const accountCreated = user?.created_at
@@ -184,6 +223,117 @@ const ProfilePage = () => {
               </form>
             </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.08 }}
+              className="bg-white border border-slate-200 rounded-[2rem] p-8 md:p-10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <SlidersHorizontal size={20} className="text-primary-500" />
+                <h3 className="text-2xl font-extrabold text-slate-900">Typing Preferences</h3>
+              </div>
+              <p className="text-slate-500 mb-8">Personalize your practice experience and set better goals.</p>
+
+              <form onSubmit={onSavePreferences} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-600 ml-1">Bio</label>
+                  <textarea
+                    value={preferences.bio}
+                    onChange={(e) => updatePreference('bio', e.target.value)}
+                    rows={3}
+                    placeholder="Tell us about your typing goals..."
+                    className="w-full bg-white border border-slate-300 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-600 ml-1">Daily WPM Goal</label>
+                    <input
+                      type="number"
+                      min={10}
+                      max={200}
+                      value={preferences.dailyGoalWpm}
+                      onChange={(e) => updatePreference('dailyGoalWpm', Number(e.target.value))}
+                      className="w-full bg-white border border-slate-300 rounded-2xl py-3 px-4 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-600 ml-1">Preferred Difficulty</label>
+                    <select
+                      value={preferences.preferredDifficulty}
+                      onChange={(e) => updatePreference('preferredDifficulty', e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-2xl py-3 px-4 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all outline-none"
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-medium text-slate-600 ml-1">Keyboard Layout</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {['qwerty', 'dvorak', 'colemak', 'azerty'].map((layout) => (
+                        <button
+                          key={layout}
+                          type="button"
+                          onClick={() => updatePreference('keyboardLayout', layout)}
+                          className={`rounded-xl px-3 py-2 text-sm font-semibold border transition-all ${
+                            preferences.keyboardLayout === layout
+                              ? 'bg-primary-50 text-primary-700 border-primary-300'
+                              : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'
+                          }`}
+                        >
+                          {layout.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center justify-between gap-3 border border-slate-200 rounded-2xl p-4 cursor-pointer">
+                    <span className="inline-flex items-center gap-2 text-slate-700 font-medium">
+                      <Volume2 size={16} className="text-primary-500" />
+                      Typing Sound Effects
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={preferences.soundEnabled}
+                      onChange={(e) => updatePreference('soundEnabled', e.target.checked)}
+                      className="w-4 h-4 accent-primary-600"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between gap-3 border border-slate-200 rounded-2xl p-4 cursor-pointer">
+                    <span className="inline-flex items-center gap-2 text-slate-700 font-medium">
+                      <BellRing size={16} className="text-primary-500" />
+                      Email Practice Reminders
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={preferences.emailReminders}
+                      onChange={(e) => updatePreference('emailReminders', e.target.checked)}
+                      className="w-4 h-4 accent-primary-600"
+                    />
+                  </label>
+                </div>
+
+                <div className="pt-4 flex items-center justify-between gap-4">
+                  <p className="text-xs text-slate-500">These preferences are saved locally for now.</p>
+                  <button
+                    type="submit"
+                    className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md shadow-primary-500/20"
+                  >
+                    Save Preferences
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+
             {/* Notifications */}
             {showSuccess && (
               <motion.div
@@ -197,6 +347,22 @@ const ProfilePage = () => {
                 <div>
                   <h4 className="text-emerald-400 font-bold text-lg">Identity Refined!</h4>
                   <p className="text-emerald-700/80 text-sm">Your profile has been successfully updated across the platform.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {showPrefsSaved && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-primary-50 border border-primary-200 p-5 rounded-3xl flex items-center gap-3 shadow-md"
+              >
+                <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
+                  <CheckCircle2 className="text-white" size={20} />
+                </div>
+                <div>
+                  <h4 className="text-primary-700 font-bold">Preferences Saved</h4>
+                  <p className="text-primary-700/80 text-sm">Your typing options have been saved for this browser.</p>
                 </div>
               </motion.div>
             )}
