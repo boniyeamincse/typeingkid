@@ -10,6 +10,8 @@ Run this in the backend folder to create/update demo accounts:
 npm run seed
 ```
 
+The seed script is idempotent. It will create missing demo accounts and update existing ones in the database.
+
 ## Demo Accounts
 
 | Role | Email | Password | Expected Frontend Route |
