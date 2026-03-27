@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Trophy, Zap, Star, Globe, ArrowRight, Keyboard, BookOpen, ClipboardCheck, Gamepad2 } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 
@@ -86,6 +87,7 @@ const Dashboard = () => {
               icon: BookOpen,
               color: 'bg-primary-100 text-primary-600',
               action: 'Open Lessons',
+              path: '/lessons',
             },
             {
               title: 'Tests',
@@ -114,12 +116,21 @@ const Dashboard = () => {
               </div>
               <h3 className="text-2xl font-black text-slate-900 mb-2">{option.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed mb-6">{option.description}</p>
-              <button
-                type="button"
-                className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors"
-              >
-                {option.action}
-              </button>
+              {option.path ? (
+                <Link
+                  to={option.path}
+                  className="block w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors text-center"
+                >
+                  {option.action}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors"
+                >
+                  {option.action}
+                </button>
+              )}
             </motion.div>
           ))}
         </div>

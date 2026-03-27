@@ -4,9 +4,13 @@ import { store } from './store';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
+import LessonsPage from './pages/LessonsPage';
 import ProfilePage from './pages/ProfilePage';
-import HomePage from './pages/HomePage';
+import EducatorPage from './pages/EducatorPage';
+import AdminPage from './pages/AdminPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { ROLE } from './utils/roleUtils';
 
 function App() {
   return (
@@ -14,14 +18,25 @@ function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected Routes */}
+          {/* USER/EDUCATOR/ADMIN shared routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+
+          {/* EDUCATOR + ADMIN routes */}
+          <Route element={<ProtectedRoute allowedRoles={[ROLE.EDUCATOR, ROLE.ADMIN]} />}>
+            <Route path="/educator" element={<EducatorPage />} />
+          </Route>
+
+          {/* ADMIN-only routes */}
+          <Route element={<ProtectedRoute allowedRoles={[ROLE.ADMIN]} />}>
+            <Route path="/admin" element={<AdminPage />} />
           </Route>
 
           {/* Catch-all redirect */}
