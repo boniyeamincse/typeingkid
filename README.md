@@ -59,6 +59,27 @@ TypeMaster is a full-stack, gamified web-based typing platform designed to teach
    npm run dev
    ```
 
+4. **Seed Role-Based Demo Users (for RBAC testing):**
+   ```bash
+   cd backend
+   npm run seed
+   ```
+
+---
+
+## Role-Based Test Credentials
+
+Use these accounts to test role access in local development:
+
+| Role | Email | Password | Redirect |
+|---|---|---|---|
+| USER | demo_user@typingkids.dev | DemoUser123! | `/dashboard` |
+| EDUCATOR | demo_educator@typingkids.dev | DemoEducator123! | `/educator` |
+| ADMIN | demo_admin@typingkids.dev | DemoAdmin123! | `/admin` |
+
+- Login page: `http://localhost:5173/login`
+- Full details: [Role Test Credentials](docs/Role_Test_Credentials.md)
+
 ---
 
 ## 🤝 Team Collaboration
