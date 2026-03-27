@@ -120,3 +120,17 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [ ] Deploy Backend to AWS EC2 or Heroku.
 - [ ] Deploy Frontend to Vercel or Netlify.
 - [ ] Set up monitoring with Sentry and Datadog.
+
+---
+
+## Phase 8: System Integration & Event Flow 🧩
+
+### 8.1 Cross-Module Integration
+- [ ] Implement global event bus for system signals (Level Up, Badge Earned).
+- [ ] Connect Typing Engine results to the Scoring Module.
+- [ ] Integrate Scoring outcomes with Redis-based Leaderboards.
+
+### 8.2 End-to-End Testing
+- [ ] Create E2E tests for the "Typing-to-Ranking" flow.
+- [ ] Verify badge awarding logic during high-speed typing sessions.
+- [ ] Test real-time leaderboard updates across multiple sessions.
