@@ -32,8 +32,9 @@ model User {
   created_at    DateTime @default(now())
   last_active_at DateTime @updatedAt
 
-  lessonProgress LessonProgress[]
-  classrooms     Classroom[]
+  lessonProgress  LessonProgress[]
+  practiceResults PracticeResult[]
+  classrooms      Classroom[]
   memberships    ClassroomMembership[]
 
   @@map("users")
@@ -106,4 +107,31 @@ model LessonAssignment {
   lesson    Lesson    @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
 
   @@map("lesson_assignments")
+}
+
+// ── Practice Items ─────────────────────────────────────────────────────────────
+model PracticeItem {
+  id         String   @id @default(uuid())
+  type       String   // "letter" | "two_letter" | "three_letter"
+  value      String
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@unique([type, value])
+  @@map("practice_items")
+}
+
+// ── Practice Results ───────────────────────────────────────────────────────────
+model PracticeResult {
+  id             String   @id @default(uuid())
+  user_id        String
+  practice_type  String   // "alphabet" | "two_letter" | "three_letter" | "combo_game"
+  score          Int
+  accuracy       Int
+  duration_secs  Int
+  completed_at   DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("practice_results")
 }

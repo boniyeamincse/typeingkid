@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import lessonRoutes from './routes/lessonRoutes.js';
 import educatorRoutes from './routes/educatorRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import practiceRoutes from './routes/practiceRoutes.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/educator', educatorRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/practice', practiceRoutes);
 
 app.get('/', (req, res) => {
   res.send('TypeMaster API is running...');
