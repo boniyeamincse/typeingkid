@@ -120,6 +120,7 @@ const BeginnerLessonJSPage = () => {
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
   const [isAutoReturning, setIsAutoReturning] = useState(false);
+  const [stage, setStage] = useState('intro');
   const hasSavedProgressRef = useRef(false);
 
   useEffect(() => {
@@ -138,6 +139,7 @@ const BeginnerLessonJSPage = () => {
         const orderIndex = parsedLessonNumber - 1;
         const response = await api.get(`/lessons/difficulty/beginner/order/${orderIndex}`);
         setLesson(response.data);
+        setStage('intro');
       } catch (error) {
         setLoadError(error.response?.data?.message || 'Failed to load lesson.');
       } finally {
@@ -187,6 +189,7 @@ const BeginnerLessonJSPage = () => {
 
   useEffect(() => {
     if (!lesson) return;
+    if (stage !== 'practice') return;
 
     const onKeyDown = (event) => {
       const key = event.key;
@@ -208,7 +211,7 @@ const BeginnerLessonJSPage = () => {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [lesson, handleKeyPress, allowedCharacters]);
+  }, [lesson, stage, handleKeyPress, allowedCharacters]);
 
   useEffect(() => {
     const saveProgress = async () => {
@@ -256,6 +259,7 @@ const BeginnerLessonJSPage = () => {
     hasSavedProgressRef.current = false;
     setSaveError('');
     setIsAutoReturning(false);
+    setStage('intro');
     writeLocalBeginnerProgress((current) => ({
       ...current,
       [String(parsedLessonNumber - 1)]: {
@@ -382,27 +386,7 @@ const BeginnerLessonJSPage = () => {
           </div>
         </section>
 
-        <section className="bg-slate-100 border border-slate-200 rounded-2xl p-3 md:p-4 mb-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {upcomingLetters.map((item, idx) => (
-              <div
-                key={`${item.label}-${idx}`}
-                className={`min-w-20 h-16 rounded-lg border flex items-center justify-center text-4xl font-light transition-colors ${
-                  item.isCurrent
-                    ? 'bg-primary-500 text-white border-primary-600'
-                    : 'bg-white text-slate-700 border-slate-300'
-                }`}
-              >
-                {item.label}
-              </div>
-            ))}
-            {upcomingLetters.length === 0 ? (
-              <div className="text-sm text-slate-500 font-semibold px-2 py-3">No upcoming letters.</div>
-            ) : null}
-          </div>
-        </section>
-
-        <section className="relative bg-slate-200/70 border border-slate-300 rounded-3xl p-4 md:p-8 overflow-hidden">
+        <section className="relative bg-slate-200/70 border border-slate-300 rounded-3xl p-4 md:p-8 overflow-hidden mb-4">
           <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:gap-6 mb-6">
             <div className="w-full lg:w-56 bg-sky-200 border-4 border-slate-400 rounded-2xl p-4 flex flex-col items-center justify-center">
               <div className="text-5xl leading-none">💻</div>
@@ -422,30 +406,66 @@ const BeginnerLessonJSPage = () => {
             </div>
           </div>
 
-          <div className="bg-slate-300 rounded-3xl p-4 md:p-5 border border-slate-400">
-            <div className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Keyboard Trainer</div>
-
-            <div className="space-y-2">
-              {keyboardRows.map((row, rowIndex) => (
-                <div key={`row-${rowIndex}`} className="flex justify-center gap-2 flex-wrap md:flex-nowrap">
-                  {row.map((key) => (
-                    <div
-                      key={key.label + key.value}
-                      className={`h-12 md:h-14 ${key.widthClass ?? 'w-12 md:w-14'} rounded-lg border font-bold text-sm md:text-base flex items-center justify-center transition-all ${getKeyClassName(key.value, activeKey, targetKeys)}`}
-                    >
-                      {key.label}
-                    </div>
-                  ))}
-                </div>
-              ))}
+          {stage === 'intro' ? (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => setStage('practice')}
+                className="bg-primary-500 text-white px-6 py-3 rounded-xl font-black hover:bg-primary-600 transition-colors"
+              >
+                Go to Keyboard Practice
+              </button>
             </div>
-          </div>
+          ) : null}
+
+          {stage === 'practice' ? (
+            <div className="bg-slate-300 rounded-3xl p-4 md:p-5 border border-slate-400">
+              <div className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Keyboard Trainer</div>
+
+              <div className="space-y-2">
+                {keyboardRows.map((row, rowIndex) => (
+                  <div key={`row-${rowIndex}`} className="flex justify-center gap-2 flex-wrap md:flex-nowrap">
+                    {row.map((key) => (
+                      <div
+                        key={key.label + key.value}
+                        className={`h-12 md:h-14 ${key.widthClass ?? 'w-12 md:w-14'} rounded-lg border font-bold text-sm md:text-base flex items-center justify-center transition-all ${getKeyClassName(key.value, activeKey, targetKeys)}`}
+                      >
+                        {key.label}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="pointer-events-none absolute bottom-[-80px] left-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] rotate-12" />
           <div className="pointer-events-none absolute bottom-[-80px] right-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] -rotate-12" />
         </section>
 
-        <section className="mt-6 bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
+        {stage === 'practice' ? (
+          <>
+            <section className="bg-slate-100 border border-slate-200 rounded-2xl p-3 md:p-4 mb-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {upcomingLetters.map((item, idx) => (
+                  <div
+                    key={`${item.label}-${idx}`}
+                    className={`min-w-20 h-16 rounded-lg border flex items-center justify-center text-4xl font-light transition-colors ${
+                      item.isCurrent
+                        ? 'bg-primary-500 text-white border-primary-600'
+                        : 'bg-white text-slate-700 border-slate-300'
+                    }`}
+                  >
+                    {item.label}
+                  </div>
+                ))}
+                {upcomingLetters.length === 0 ? (
+                  <div className="text-sm text-slate-500 font-semibold px-2 py-3">No upcoming letters.</div>
+                ) : null}
+              </div>
+            </section>
+
+            <section className="mt-6 bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
           <h2 className="font-black text-slate-800 mb-3">Practice Line</h2>
           <div className="leading-10 text-2xl md:text-3xl font-black tracking-wide break-words">
             {charMap.map((item, idx) => {
@@ -476,7 +496,9 @@ const BeginnerLessonJSPage = () => {
             <p className="mt-2 text-primary-600 text-sm font-semibold">Returning to beginner lessons...</p>
           ) : null}
           {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
-        </section>
+            </section>
+          </>
+        ) : null}
       </main>
     </div>
   );
