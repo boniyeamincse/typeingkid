@@ -7,9 +7,9 @@ This document outlines the granular tasks and subtasks required to build the Typ
 ## Phase 1: Environment & Project Foundation 🏗️
 
 ### 1.1 Repository & CI/CD Setup
-- [ ] Initialize GitHub repository with `main` and `develop` branches.
-- [ ] Configure GitHub Actions for linting and automated testing.
-- [ ] Set up `.gitignore`, `.editorconfig`, and README.
+- [x] Initialize GitHub repository with `main` and `develop` branches.
+- [x] Configure GitHub Actions for linting and automated testing.
+- [x] Set up `.gitignore`, `.editorconfig`, and README.
 
 ### 1.2 Backend Initialization (Node.js/Express)
 - [ ] Initialize Node.js project.
