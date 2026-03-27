@@ -6,6 +6,7 @@ import useTypingEngine from '../hooks/useTypingEngine';
 import api from '../services/api';
 
 const BEGINNER_PROGRESS_KEY = 'typingkid_beginner_progress_v1';
+const MAX_BEGINNER_LESSONS = 26;
 
 const readLocalBeginnerProgress = () => {
   try {
@@ -110,6 +111,12 @@ const getKeyClassName = (value, activeKey, targetKeys) => {
   return 'bg-white text-slate-600 border-slate-300';
 };
 
+const getStarsFromAccuracy = (acc) => {
+  if (acc >= 98) return 3;
+  if (acc >= 90) return 2;
+  return 1;
+};
+
 const BeginnerLessonJSPage = () => {
   const { lessonNumber } = useParams();
   const navigate = useNavigate();
@@ -119,7 +126,6 @@ const BeginnerLessonJSPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
-  const [isAutoReturning, setIsAutoReturning] = useState(false);
   const hasSavedProgressRef = useRef(false);
 
   useEffect(() => {
@@ -255,7 +261,6 @@ const BeginnerLessonJSPage = () => {
   const onRestart = () => {
     hasSavedProgressRef.current = false;
     setSaveError('');
-    setIsAutoReturning(false);
     writeLocalBeginnerProgress((current) => ({
       ...current,
       [String(parsedLessonNumber - 1)]: {
@@ -266,6 +271,10 @@ const BeginnerLessonJSPage = () => {
     }));
     reset();
   };
+
+  const nextLessonNumber = parsedLessonNumber + 1;
+  const hasNextLesson = nextLessonNumber <= MAX_BEGINNER_LESSONS;
+  const stars = getStarsFromAccuracy(accuracy);
 
   useEffect(() => {
     if (!lesson || Number.isNaN(parsedLessonNumber) || parsedLessonNumber <= 0) return;
@@ -284,17 +293,6 @@ const BeginnerLessonJSPage = () => {
       };
     });
   }, [lesson, parsedLessonNumber, cursorIndex, progress, isFinished]);
-
-  useEffect(() => {
-    if (!isFinished) return;
-
-    setIsAutoReturning(true);
-    const timeoutId = setTimeout(() => {
-      navigate('/lessons/beginner');
-    }, 1200);
-
-    return () => clearTimeout(timeoutId);
-  }, [isFinished, navigate]);
 
   if (isLoading) {
     return (
@@ -460,19 +458,57 @@ const BeginnerLessonJSPage = () => {
               </div>
             </div>
 
-            {isFinished ? (
-              <p className="mt-3 text-emerald-600 font-bold">
-                Great job! You completed beginner lesson {String(parsedLessonNumber).padStart(2, '0')}.
-              </p>
-            ) : (
+            {!isFinished ? (
               <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
-            )}
-            {isAutoReturning ? (
-              <p className="mt-2 text-primary-600 text-sm font-semibold">Returning to beginner lessons...</p>
             ) : null}
             {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
           </div>
         </section>
+
+        {isFinished ? (
+          <section className="mt-5 bg-white border border-slate-200 rounded-2xl p-5 md:p-6">
+            <h2 className="text-3xl font-black text-center text-slate-800">Awesome Typing!</h2>
+
+            <div className="flex justify-center gap-2 text-5xl mt-4">
+              {[1, 2, 3].map((n) => (
+                <span key={n} className={n <= stars ? 'text-amber-400' : 'text-slate-300'}>
+                  ★
+                </span>
+              ))}
+            </div>
+
+            <p className="text-center text-slate-600 font-semibold mt-3">
+              You earned {stars}/3 stars for accuracy.
+            </p>
+
+            <p className="text-center text-2xl font-black text-slate-800 mt-5">
+              Your speed was <span className="text-primary-600">{wpm} WPM</span> with <span className="text-emerald-600">{accuracy}%</span> accuracy.
+            </p>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+              <Link
+                to="/lessons/beginner"
+                className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors text-center"
+              >
+                Back to Lessons
+              </Link>
+              <button
+                type="button"
+                onClick={onRestart}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+              >
+                Redo
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(hasNextLesson ? `/lessons/beginner/${nextLessonNumber}` : '/lessons/beginner')}
+                className="px-4 py-2.5 rounded-xl bg-secondary-500 text-slate-900 font-black hover:bg-secondary-600 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          </section>
+        ) : null}
       </main>
     </div>
   );
