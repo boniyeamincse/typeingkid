@@ -1,6 +1,6 @@
 # TypeMaster — Gamified Typing Platform 🚀
 
-TypeMaster is a full-stack, gamified web-based typing platform designed to teach, challenge, and track typing skills across all experience levels. It combines structured typing lessons with game mechanics — XP, badges, leaderboards, missions, and story mode — to create an engaging and motivating learning environment.
+TypeMaster is a full-stack, gamified web-based typing platform designed to teach, challenge, and track typing skills across all experience levels. It combines structured typing lessons with game mechanics — **XP, badges, leaderboards, missions, and story mode** — to create an engaging and motivating learning environment.
 
 ---
 
@@ -19,22 +19,21 @@ TypeMaster is a full-stack, gamified web-based typing platform designed to teach
 
 ## ✨ Key Features
 
-- **Structured Lessons:** Beginner to advanced courses covering home row to professional coding.
-- **Multiplayer Races:** Real-time 2–8 player races with live progress tracking.
-- **Gamification:** XP, levels, 100+ unlockable badges, and daily challenges.
-- **Analytics:** Detailed WPM/accuracy trends and key error heatmaps.
-- **Multi-language:** Support for English, Bangla, and Hindi.
-- **Story Mode:** Narrative-driven typing adventures.
+- **⌨️ Structured Lessons:** From home row basics to professional coding snippets.
+- **🏁 Multiplayer Races:** Real-time 2–8 player races with live progress tracking.
+- **🏆 Gamification:** XP, levels, 100+ unlockable badges, and daily challenges.
+- **📈 Analytics:** Detailed WPM/accuracy trends and key error heatmaps.
+- **🌐 Multi-language:** Support for English, Bangla, and Hindi.
+- **📖 Story Mode:** Narrative-driven typing adventures.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v20.x)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Redis](https://redis.io/)
+- [Node.js](https://nodejs.org/) (v20.x LTS)
+- [PostgreSQL](https://www.postgresql.org/) (v15+)
+- [Redis](https://redis.io/) (v7.x)
 
 ### Installation
 
@@ -62,17 +61,21 @@ TypeMaster is a full-stack, gamified web-based typing platform designed to teach
 
 ---
 
-## 🤝 Contribution Guidelines
+## 🤝 Team Collaboration
 
 We are a growing team! Please follow these standards to keep the codebase clean:
 
-### Branching Strategy
+### 🗺️ Documentation
+- [Software Documentation](docs/TypeMaster_Software_Documentation.md): Full system specifications.
+- [Development Roadmap](docs/Development_Roadmap.md): Step-by-step task list and subtasks.
+
+### 🌿 Branching Strategy
 - `main` - Production-ready code.
 - `develop` - Integration branch for features.
 - `feature/*` - New features (e.g., `feature/typing-engine`).
 - `bugfix/*` - Critical fixes (e.g., `bugfix/login-failure`).
 
-### Workflow
+### 🛠️ Workflow
 1. Create a branch from `develop`.
 2. Commit your changes with clear, descriptive messages.
 3. Open a Pull Request for review.
@@ -82,4 +85,4 @@ We are a growing team! Please follow these standards to keep the codebase clean:
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the `LICENSE` file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
