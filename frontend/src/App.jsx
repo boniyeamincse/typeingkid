@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import LandingPage from './pages/LandingPage';
 import LessonsPage from './pages/LessonsPage';
+import BeginnerLessonsPage from './pages/BeginnerLessonsPage';
 import ProfilePage from './pages/ProfilePage';
 import EducatorPage from './pages/EducatorPage';
 import AdminPage from './pages/AdminPage';
@@ -26,6 +27,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/lessons" element={<LessonsPage />} />
+            <Route path="/lessons/beginner" element={<BeginnerLessonsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 

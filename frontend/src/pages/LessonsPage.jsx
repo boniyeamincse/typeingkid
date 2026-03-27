@@ -8,6 +8,7 @@ const difficultyBlocks = [
     title: 'Beginner',
     description: 'Learn fundamentals: home row keys, finger placement, and rhythm control.',
     color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    path: '/lessons/beginner',
   },
   {
     title: 'Intermediate',
@@ -88,12 +89,21 @@ const LessonsPage = () => {
               </div>
               <h2 className="text-2xl font-black mb-2">{block.title}</h2>
               <p className="text-sm leading-relaxed mb-5">{block.description}</p>
-              <button
-                type="button"
-                className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors"
-              >
-                Start {block.title}
-              </button>
+              {block.path ? (
+                <Link
+                  to={block.path}
+                  className="block w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors text-center"
+                >
+                  Start {block.title}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold hover:bg-black transition-colors"
+                >
+                  Start {block.title}
+                </button>
+              )}
             </motion.div>
           ))}
         </div>
