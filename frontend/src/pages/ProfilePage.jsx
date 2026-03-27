@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfile } from '../store/slices/authSlice';
 import { motion } from 'framer-motion';
-import { User, Mail, Camera, Save, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Camera, Save, ArrowLeft, Loader2, CheckCircle2, Star, Shield, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 
@@ -13,6 +13,17 @@ const ProfilePage = () => {
   const [displayName, setDisplayName] = useState(user?.display_name || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const AVATARS = [
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Milo',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Zoe',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Maya'
+  ];
 
   useEffect(() => {
     if (isSuccess && !isLoading) {
@@ -27,113 +38,186 @@ const ProfilePage = () => {
     dispatch(updateProfile({ display_name: displayName, avatar_url: avatarUrl }));
   };
 
+  const accountCreated = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString()
+    : 'N/A';
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white uppercase-selection">
+    <div className="min-h-screen bg-white text-slate-800 selection:bg-primary-500/20">
       <Navbar />
-      <div className="max-w-2xl mx-auto p-4 md:p-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8 group">
+      <div className="max-w-5xl mx-auto p-4 md:p-12">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors mb-8 group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           Back to Dashboard
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl"
-        >
-          {/* Header/Cover Placeholder */}
-          <div className="h-32 bg-gradient-to-r from-primary-600 to-accent-600 opacity-20" />
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">Comprehensive Profile</h1>
+          <p className="text-slate-500 mt-2">
+            Manage your public identity, account details, and typing progress in one place.
+          </p>
+        </div>
 
-          <div className="px-8 pb-12 -mt-16">
-            <div className="relative inline-block mb-8">
-              <div className="w-32 h-32 rounded-3xl border-4 border-slate-950 overflow-hidden bg-slate-800 shadow-xl">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-500">
-                    <User size={48} />
-                  </div>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Avatar Selection (Left) */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-lg">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Camera size={20} className="text-primary-500" />
+                Identity Avatar
+              </h2>
+              
+              <div className="mb-8 flex justify-center">
+                <div className="w-32 h-32 rounded-3xl border-4 border-slate-200 p-1 bg-slate-50 shadow-inner group overflow-hidden relative">
+                  <img src={avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + displayName} alt="Preview" className="w-full h-full object-cover rounded-2xl group-hover:scale-110 transition-transform" />
+                  <div className="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </div>
-              <button className="absolute bottom-2 right-2 p-2 bg-primary-500 rounded-xl shadow-lg border-2 border-slate-950 hover:bg-primary-600 transition-colors">
-                <Camera size={16} />
-              </button>
+
+              <div className="grid grid-cols-4 gap-3">
+                {AVATARS.map((url) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setAvatarUrl(url)}
+                    className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all ${
+                      avatarUrl === url ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <img src={url} alt="Option" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <p className="mt-6 text-xs text-slate-500 text-center italic leading-relaxed">Choose a persona that represents your typing style.</p>
             </div>
 
-            <h1 className="text-3xl font-bold mb-1">Profile Settings</h1>
-            <p className="text-slate-400 mb-8">Manage your public identity and preferences</p>
-
-            <form onSubmit={onSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Display Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Your display name"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
-                  />
+            <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-lg">
+              <h3 className="font-bold text-slate-900 mb-4">Account Summary</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Role</span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 font-semibold">
+                    <Shield size={14} /> {user?.role || 'USER'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Member Since</span>
+                  <span className="text-slate-700 inline-flex items-center gap-1"><Calendar size={14} /> {accountCreated}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Level</span>
+                  <span className="text-slate-900 font-bold inline-flex items-center gap-1"><Star size={14} className="text-amber-500" /> {user?.level || 1}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">XP</span>
+                  <span className="text-slate-900 font-bold">{user?.xp || 0}</span>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Avatar URL</label>
-                <div className="relative">
-                  <Camera className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input
-                    type="text"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.png"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 ml-1">Email (Read-only)</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
-                  <input
-                    type="email"
-                    value={user?.email}
-                    disabled
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-slate-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {showSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm flex items-center gap-2"
-                >
-                  <CheckCircle2 size={16} />
-                  Profile updated successfully!
-                </motion.div>
-              )}
-
-              {isError && (
-                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-sm">
-                  {message}
-                </div>
-              )}
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2 disabled:opacity-70"
-                >
-                  {isLoading ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Save Changes</>}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </motion.div>
+
+          {/* Profile Form (Right) */}
+          <div className="lg:col-span-8 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white border border-slate-200 rounded-[2rem] p-8 md:p-12 shadow-lg relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8 text-primary-500/10 -rotate-12 translate-x-4 -translate-y-4 pointer-events-none">
+                <User size={200} />
+              </div>
+
+              <h2 className="text-3xl font-extrabold mb-2 relative z-10 text-slate-900">Profile Information</h2>
+              <p className="text-slate-500 mb-10 relative z-10">Update your public profile information and display name.</p>
+
+              <form onSubmit={onSubmit} className="space-y-8 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-600 ml-1">Display Name</label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-500 transition-colors" size={20} />
+                      <input
+                        type="text"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="MasterTypist"
+                        className="w-full bg-white border border-slate-300 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all outline-none font-medium hover:border-slate-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-600 ml-1">Email (Locked)</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+                      <input
+                        type="email"
+                        value={user?.email}
+                        disabled
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 cursor-not-allowed font-medium text-slate-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+                   <div className="flex items-center gap-4">
+                      <div className="text-xs text-slate-500 font-mono">
+                        Level: <span className="text-primary-500">{user?.level || 1}</span>
+                      </div>
+                      <div className="w-px h-4 bg-slate-300" />
+                      <div className="text-xs text-slate-500 font-mono">
+                        XP: <span className="text-accent-500">{user?.xp || 0}</span>
+                      </div>
+                   </div>
+
+                   <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full md:w-auto bg-primary-500 hover:bg-primary-600 disabled:opacity-50 text-white px-10 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95"
+                  >
+                    {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                    Update Profile
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+
+            {/* Notifications */}
+            {showSuccess && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl flex items-center gap-4 shadow-md"
+              >
+                <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-md shadow-emerald-500/30">
+                  <CheckCircle2 className="text-white" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-emerald-400 font-bold text-lg">Identity Refined!</h4>
+                  <p className="text-emerald-700/80 text-sm">Your profile has been successfully updated across the platform.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {isError && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-red-50 border border-red-200 p-6 rounded-3xl flex items-center gap-4 shadow-md"
+              >
+                <div className="w-12 h-12 bg-red-500 rounded-2xl flex items-center justify-center shadow-md shadow-red-500/30">
+                  <CheckCircle2 className="text-white rotate-45" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-red-400 font-bold text-lg">Update Failed</h4>
+                  <p className="text-red-700/80 text-sm">{message || 'We encountered an error while saving your profile updates.'}</p>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

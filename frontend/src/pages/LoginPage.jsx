@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { login, reset } from '../store/slices/authSlice';
 import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { getDefaultRouteForRole } from '../utils/roleUtils';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ const LoginPage = () => {
     }
 
     if (isSuccess || user) {
-      navigate('/');
+      navigate(getDefaultRouteForRole(user?.role));
     }
 
     dispatch(reset());
@@ -45,24 +46,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl"
+        className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-2xl shadow-xl"
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-500/10 text-primary-500 mb-4">
             <LogIn size={24} />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-          <p className="text-slate-400">Sign in to continue your typing journey</p>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
+          <p className="text-slate-500">Sign in to continue your typing journey</p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-300 ml-1">Email Address</label>
+            <label className="text-sm font-medium text-slate-600 ml-1">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input
@@ -71,14 +72,14 @@ const LoginPage = () => {
                 value={email}
                 onChange={onChange}
                 placeholder="name@example.com"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+                className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-300 ml-1">Password</label>
+            <label className="text-sm font-medium text-slate-600 ml-1">Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input
@@ -87,7 +88,7 @@ const LoginPage = () => {
                 value={password}
                 onChange={onChange}
                 placeholder="••••••••"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+                className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
                 required
               />
             </div>
@@ -120,7 +121,7 @@ const LoginPage = () => {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-slate-400 text-sm">
+        <p className="mt-8 text-center text-slate-500 text-sm">
           Don't have an account?{' '}
           <Link to="/register" className="text-primary-500 hover:text-primary-400 font-medium transition-colors">
             Create account

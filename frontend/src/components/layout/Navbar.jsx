@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
-import { LogOut, User, LayoutDashboard, Zap } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Zap, GraduationCap, Shield } from 'lucide-react';
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
@@ -14,31 +14,46 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-primary-500/20">
+          <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform shadow-md shadow-primary-500/20">
             <Zap size={18} className="text-white fill-current" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-            TypeMaster
+          <span className="text-xl font-bold text-slate-800">
+            TypingKids
           </span>
         </Link>
 
         <div className="flex items-center gap-6">
           {user ? (
             <>
-              <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+              <Link to="/dashboard" className="text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-2 text-sm font-medium">
                 <LayoutDashboard size={18} />
                 Dashboard
               </Link>
-              <Link to="/profile" className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+              {(user.role === 'EDUCATOR' || user.role === 'ADMIN') && (
+                <Link to="/educator" className="text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-2 text-sm font-medium">
+                  <GraduationCap size={18} />
+                  Educator
+                </Link>
+              )}
+              {user.role === 'ADMIN' && (
+                <Link to="/admin" className="text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-2 text-sm font-medium">
+                  <Shield size={18} />
+                  Admin
+                </Link>
+              )}
+              <Link to="/profile" className="text-slate-500 hover:text-primary-600 transition-colors flex items-center gap-2 text-sm font-medium">
                 <User size={18} />
                 Profile
               </Link>
+              <span className="hidden md:inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 text-primary-700 border border-primary-100">
+                {user.role || 'USER'}
+              </span>
               <button
                 onClick={onLogout}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 border border-slate-700"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 border border-slate-200"
               >
                 <LogOut size={16} />
                 Logout
@@ -46,7 +61,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
+              <Link to="/login" className="text-slate-500 hover:text-primary-600 transition-colors text-sm font-medium">
                 Sign In
               </Link>
               <Link
