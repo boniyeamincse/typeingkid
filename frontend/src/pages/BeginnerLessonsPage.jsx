@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -11,48 +12,101 @@ import {
   Crown,
 } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
+import api from '../services/api';
 
-const lessonItems = [
-  {
-    id: 1,
-    title: 'J, S, and Space',
-    avgSpeed: 12,
-    avgAcc: 95,
-    time: '5:46',
-    status: 'done',
-    progress: 100,
-    path: '/lessons/beginner/01-js',
-  },
-  {
-    id: 2,
-    title: 'U, R, and K Keys',
-    avgSpeed: 12,
-    avgAcc: 95,
-    time: '9:37',
-    status: 'done',
-    progress: 100,
-  },
-  {
-    id: 3,
-    title: 'D, E, and I Keys',
-    avgSpeed: 6,
-    avgAcc: 92,
-    time: '18:22',
-    status: 'done',
-    progress: 100,
-  },
-  {
-    id: 4,
-    title: 'C, G, and N Keys',
-    avgSpeed: 9,
-    avgAcc: 90,
-    time: '1:00',
-    status: 'current',
-    progress: 34,
-  },
-];
+const getLessonPath = (lesson) => {
+  // Route exists today for lesson 01 only.
+  if (lesson.order_index === 0) {
+    return '/lessons/beginner/01-js';
+  }
+  return null;
+};
+
+const formatAttemptTime = (attempts) => {
+  if (!attempts) return 'Not started';
+  return `${attempts} attempt${attempts > 1 ? 's' : ''}`;
+};
 
 const BeginnerLessonsPage = () => {
+  const [lessonItems, setLessonItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    const loadLessons = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError('');
+
+        const [lessonsResponse, summaryResponse] = await Promise.all([
+          api.get('/lessons?difficulty=beginner'),
+          api.get('/lessons/progress/summary?difficulty=beginner'),
+        ]);
+
+        const summaryByLessonId = new Map(
+          summaryResponse.data.map((item) => [item.id, item])
+        );
+
+        const merged = lessonsResponse.data
+          .sort((a, b) => a.order_index - b.order_index)
+          .map((lesson) => {
+            const summary = summaryByLessonId.get(lesson.id);
+            const isCompleted = summary?.is_completed ?? false;
+
+            return {
+              id: lesson.id,
+              index: lesson.order_index + 1,
+              title: lesson.title,
+              avgSpeed: summary?.best_wpm ?? 0,
+              avgAcc: summary?.best_accuracy ?? 0,
+              time: formatAttemptTime(summary?.attempts ?? 0),
+              status: isCompleted ? 'done' : 'current',
+              progress: isCompleted ? 100 : 0,
+              path: getLessonPath(lesson),
+            };
+          });
+
+        const firstPendingIndex = merged.findIndex((item) => item.status !== 'done');
+        const normalized = merged.map((item, idx) => {
+          if (item.status === 'done') return item;
+          return {
+            ...item,
+            status: idx === firstPendingIndex ? 'current' : 'pending',
+          };
+        });
+
+        setLessonItems(normalized);
+      } catch (error) {
+        setLoadError(error.response?.data?.message || 'Failed to load beginner lessons.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLessons();
+  }, []);
+
+  const totalLessons = lessonItems.length;
+  const completedLessons = useMemo(
+    () => lessonItems.filter((item) => item.status === 'done').length,
+    [lessonItems]
+  );
+  const completionPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const avgWpm = completedLessons > 0
+    ? Math.round(
+        lessonItems
+          .filter((item) => item.status === 'done')
+          .reduce((sum, item) => sum + item.avgSpeed, 0) / completedLessons
+      )
+    : 0;
+  const avgAcc = completedLessons > 0
+    ? Math.round(
+        lessonItems
+          .filter((item) => item.status === 'done')
+          .reduce((sum, item) => sum + item.avgAcc, 0) / completedLessons
+      )
+    : 0;
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 selection:bg-primary-500/20">
       <Navbar />
@@ -77,19 +131,19 @@ const BeginnerLessonsPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 min-w-[280px]">
               <div className="bg-white/15 rounded-2xl p-3">
                 <div className="text-xs text-primary-100 font-semibold mb-1 inline-flex items-center gap-1"><Gauge size={14} /> Avg Speed</div>
-                <div className="text-xl font-black">10 wpm</div>
+                <div className="text-xl font-black">{avgWpm} wpm</div>
               </div>
               <div className="bg-white/15 rounded-2xl p-3">
                 <div className="text-xs text-primary-100 font-semibold mb-1 inline-flex items-center gap-1"><Target size={14} /> Avg Acc</div>
-                <div className="text-xl font-black">93%</div>
+                <div className="text-xl font-black">{avgAcc}%</div>
               </div>
               <div className="bg-white/15 rounded-2xl p-3">
                 <div className="text-xs text-primary-100 font-semibold mb-1 inline-flex items-center gap-1"><Clock3 size={14} /> Typing Time</div>
-                <div className="text-xl font-black">1:18:29</div>
+                <div className="text-xl font-black">{completedLessons}/{totalLessons}</div>
               </div>
               <div className="bg-white/15 rounded-2xl p-3">
                 <div className="text-xs text-primary-100 font-semibold mb-1 inline-flex items-center gap-1"><Flame size={14} /> Daily Goal</div>
-                <div className="text-xl font-black">00:00</div>
+                <div className="text-xl font-black">{completionPercent}%</div>
               </div>
             </div>
           </div>
@@ -145,14 +199,29 @@ const BeginnerLessonsPage = () => {
             <div className="bg-white/15 rounded-2xl p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-white text-2xl font-black">Getting Started</h2>
-                <span className="text-primary-100 font-bold">21% Complete</span>
+                <span className="text-primary-100 font-bold">{completionPercent}% Complete</span>
               </div>
               <div className="w-full bg-white/25 rounded-full h-3 overflow-hidden">
-                <div className="h-full bg-white w-[21%]" />
+                <div className="h-full bg-white" style={{ width: `${completionPercent}%` }} />
               </div>
             </div>
 
-            <div className="space-y-4">
+            {isLoading ? (
+              <div className="bg-white rounded-2xl p-5 text-slate-600 font-semibold">Loading beginner lessons...</div>
+            ) : null}
+
+            {!isLoading && loadError ? (
+              <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 text-rose-700 font-semibold">{loadError}</div>
+            ) : null}
+
+            {!isLoading && !loadError && lessonItems.length === 0 ? (
+              <div className="bg-white rounded-2xl p-5 text-slate-600 font-semibold">
+                No beginner lessons found. Add lessons from admin panel first.
+              </div>
+            ) : null}
+
+            {!isLoading && !loadError && lessonItems.length > 0 ? (
+              <div className="space-y-4">
               {lessonItems.map((lesson, i) => (
                 <motion.div
                   key={lesson.id}
@@ -165,14 +234,14 @@ const BeginnerLessonsPage = () => {
                     <div>
                       <div className="inline-flex items-center gap-3">
                         <span className={`w-8 h-8 rounded-full inline-flex items-center justify-center text-sm font-black ${lesson.status === 'done' ? 'bg-white/30 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                          {lesson.id}
+                          {lesson.index}
                         </span>
                         <h3 className={`text-2xl font-black ${lesson.status === 'done' ? 'text-white' : 'text-slate-800'}`}>
                           {lesson.title}
                         </h3>
                       </div>
                       <p className={`mt-2 text-sm font-semibold ${lesson.status === 'done' ? 'text-white/95' : 'text-slate-600'}`}>
-                        Avg Speed: {lesson.avgSpeed} wpm &nbsp; | &nbsp; Avg Acc: {lesson.avgAcc}% &nbsp; | &nbsp; Time: {lesson.time}
+                        Best Speed: {lesson.avgSpeed} wpm &nbsp; | &nbsp; Best Acc: {lesson.avgAcc}% &nbsp; | &nbsp; {lesson.time}
                       </p>
                     </div>
 
@@ -186,16 +255,14 @@ const BeginnerLessonsPage = () => {
                           <RotateCcw size={16} /> Restart
                         </button>
                       )
+                    ) : lesson.path ? (
+                      <Link to={lesson.path} className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-secondary-500 transition-colors">
+                        <Play size={16} className="fill-current" /> Start
+                      </Link>
                     ) : (
-                      lesson.path ? (
-                        <Link to={lesson.path} className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-secondary-500 transition-colors">
-                          <Play size={16} className="fill-current" /> Resume
-                        </Link>
-                      ) : (
-                        <button type="button" className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
-                          <Play size={16} className="fill-current" /> Resume
-                        </button>
-                      )
+                      <button type="button" className="bg-slate-300 text-slate-600 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 cursor-not-allowed" disabled>
+                        <Play size={16} /> Coming Soon
+                      </button>
                     )}
                   </div>
                   <div className="mt-4 w-full h-2.5 rounded-full bg-white/35 overflow-hidden">
@@ -203,7 +270,8 @@ const BeginnerLessonsPage = () => {
                   </div>
                 </motion.div>
               ))}
-            </div>
+              </div>
+            ) : null}
           </section>
         </div>
       </main>
