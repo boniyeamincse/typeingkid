@@ -1,6 +1,11 @@
 import prisma from '../db.js';
 
 const VALID_DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
+const DIFFICULTY_RANK = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2,
+};
 
 // ─── Admin: Create a lesson ────────────────────────────────────────────────────
 // @route  POST /api/lessons
@@ -280,6 +285,114 @@ export const getMyLessonProgressSummary = async (req, res) => {
     });
 
     res.json(summary);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── Protected: Get adaptive next lesson recommendation ──────────────────────
+// @route  GET /api/lessons/:id/adaptive-next?wpm=42&accuracy=96
+// @access Protected
+export const getAdaptiveLessonSuggestion = async (req, res) => {
+  const { id } = req.params;
+  const qAccuracy = req.query.accuracy;
+  const qWpm = req.query.wpm;
+
+  const accuracy = qAccuracy !== undefined ? Number.parseInt(qAccuracy, 10) : null;
+  const wpm = qWpm !== undefined ? Number.parseInt(qWpm, 10) : null;
+
+  if (accuracy !== null && (Number.isNaN(accuracy) || accuracy < 0 || accuracy > 100)) {
+    return res.status(400).json({ message: 'accuracy must be an integer between 0 and 100.' });
+  }
+  if (wpm !== null && (Number.isNaN(wpm) || wpm < 0)) {
+    return res.status(400).json({ message: 'wpm must be a non-negative integer.' });
+  }
+
+  try {
+    const currentLesson = await prisma.lesson.findUnique({ where: { id } });
+    if (!currentLesson || !currentLesson.is_active) {
+      return res.status(404).json({ message: 'Lesson not found.' });
+    }
+
+    const currentRank = DIFFICULTY_RANK[currentLesson.difficulty] ?? 0;
+    const nextDifficulty = VALID_DIFFICULTIES[currentRank + 1] ?? null;
+
+    const [nextInSameDifficulty, firstLessonNextDifficulty] = await Promise.all([
+      prisma.lesson.findFirst({
+        where: {
+          is_active: true,
+          difficulty: currentLesson.difficulty,
+          order_index: { gt: currentLesson.order_index },
+        },
+        orderBy: { order_index: 'asc' },
+      }),
+      nextDifficulty
+        ? prisma.lesson.findFirst({
+            where: {
+              is_active: true,
+              difficulty: nextDifficulty,
+            },
+            orderBy: { order_index: 'asc' },
+          })
+        : Promise.resolve(null),
+    ]);
+
+    let recommendation = null;
+
+    if (accuracy !== null && accuracy < 85) {
+      recommendation = {
+        type: 'retry',
+        message: 'Accuracy is below 85%, so we recommend repeating this lesson for stronger consistency.',
+        lesson: currentLesson,
+      };
+    } else if (accuracy !== null && wpm !== null && accuracy >= 97 && wpm >= 45 && firstLessonNextDifficulty) {
+      recommendation = {
+        type: 'promote',
+        message: `Strong performance detected. Try moving up to ${nextDifficulty}.`,
+        lesson: firstLessonNextDifficulty,
+      };
+    } else if (nextInSameDifficulty) {
+      recommendation = {
+        type: 'next',
+        message: 'Great work. Continue to the next lesson in your current track.',
+        lesson: nextInSameDifficulty,
+      };
+    } else if (firstLessonNextDifficulty) {
+      recommendation = {
+        type: 'promote',
+        message: `You completed this track. Time to move up to ${nextDifficulty}.`,
+        lesson: firstLessonNextDifficulty,
+      };
+    } else {
+      recommendation = {
+        type: 'complete',
+        message: 'You have completed all available lessons. Keep practicing to improve speed and accuracy.',
+        lesson: null,
+      };
+    }
+
+    const lessonPayload = recommendation.lesson
+      ? {
+          id: recommendation.lesson.id,
+          title: recommendation.lesson.title,
+          difficulty: recommendation.lesson.difficulty,
+          order_index: recommendation.lesson.order_index,
+        }
+      : null;
+
+    res.json({
+      current_lesson: {
+        id: currentLesson.id,
+        title: currentLesson.title,
+        difficulty: currentLesson.difficulty,
+        order_index: currentLesson.order_index,
+      },
+      recommendation: {
+        type: recommendation.type,
+        message: recommendation.message,
+        lesson: lessonPayload,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

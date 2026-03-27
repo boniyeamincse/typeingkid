@@ -73,9 +73,9 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [x] Create API for fetching lessons by difficulty level.
 
 ### 3.3 Lesson Player UI
-- [ ] Build Lesson Player component with character highlighting.
-- [ ] Implement "Lesson Complete" modal with performance breakdown.
-- [ ] Add "Adaptive Difficulty" logic (suggesting the next lesson).
+- [x] Build Lesson Player component with character highlighting.
+- [x] Implement "Lesson Complete" modal with performance breakdown.
+- [x] Add "Adaptive Difficulty" logic (suggesting the next lesson).
 
 ---
 
