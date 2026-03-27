@@ -290,6 +290,36 @@ export const getMyLessonProgressSummary = async (req, res) => {
   }
 };
 
+// ─── Protected: Get user global lesson rank by top WPM ──────────────────────
+// @route  GET /api/lessons/rank/me
+// @access Protected
+export const getMyLessonRank = async (req, res) => {
+  try {
+    const userTopRows = await prisma.lessonProgress.groupBy({
+      by: ['user_id'],
+      _max: { wpm: true },
+    });
+
+    if (userTopRows.length === 0) {
+      return res.json({ rank: null, total_users: 0, top_wpm: 0 });
+    }
+
+    const sorted = userTopRows
+      .map((row) => ({ user_id: row.user_id, top_wpm: row._max.wpm ?? 0 }))
+      .sort((a, b) => b.top_wpm - a.top_wpm);
+
+    const userEntry = sorted.find((row) => row.user_id === req.user.id);
+    if (!userEntry) {
+      return res.json({ rank: null, total_users: sorted.length, top_wpm: 0 });
+    }
+
+    const rank = sorted.findIndex((row) => row.user_id === req.user.id) + 1;
+    res.json({ rank, total_users: sorted.length, top_wpm: userEntry.top_wpm });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // ─── Protected: Get adaptive next lesson recommendation ──────────────────────
 // @route  GET /api/lessons/:id/adaptive-next?wpm=42&accuracy=96
 // @access Protected
