@@ -15,12 +15,13 @@ import Navbar from '../components/layout/Navbar';
 const lessonItems = [
   {
     id: 1,
-    title: 'J, F, and Space',
+    title: 'J, S, and Space',
     avgSpeed: 12,
     avgAcc: 95,
     time: '5:46',
     status: 'done',
     progress: 100,
+    path: '/lessons/beginner/01-js',
   },
   {
     id: 2,
@@ -176,13 +177,25 @@ const BeginnerLessonsPage = () => {
                     </div>
 
                     {lesson.status === 'done' ? (
-                      <button type="button" className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
-                        <RotateCcw size={16} /> Restart
-                      </button>
+                      lesson.path ? (
+                        <Link to={lesson.path} className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-emerald-50 transition-colors">
+                          <RotateCcw size={16} /> Restart
+                        </Link>
+                      ) : (
+                        <button type="button" className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
+                          <RotateCcw size={16} /> Restart
+                        </button>
+                      )
                     ) : (
-                      <button type="button" className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
-                        <Play size={16} className="fill-current" /> Resume
-                      </button>
+                      lesson.path ? (
+                        <Link to={lesson.path} className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-secondary-500 transition-colors">
+                          <Play size={16} className="fill-current" /> Resume
+                        </Link>
+                      ) : (
+                        <button type="button" className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
+                          <Play size={16} className="fill-current" /> Resume
+                        </button>
+                      )
                     )}
                   </div>
                   <div className="mt-4 w-full h-2.5 rounded-full bg-white/35 overflow-hidden">
