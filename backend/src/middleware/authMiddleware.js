@@ -1,5 +1,11 @@
 import jwt from 'jsonwebtoken';
 
+const ROLE = {
+  USER: 'USER',
+  EDUCATOR: 'EDUCATOR',
+  ADMIN: 'ADMIN',
+};
+
 const protect = async (req, res, next) => {
   let token;
 
@@ -20,12 +26,20 @@ const protect = async (req, res, next) => {
   }
 };
 
-const admin = (req, res, next) => {
-  if (req.user && req.user.is_admin) {
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: `Forbidden: requires one of [${allowedRoles.join(', ')}]`,
+      });
+    }
+
     next();
-  } else {
-    res.status(403).json({ message: 'Not authorized as an admin' });
-  }
+  };
 };
 
-export { protect, admin };
+export { protect, authorizeRoles, ROLE };

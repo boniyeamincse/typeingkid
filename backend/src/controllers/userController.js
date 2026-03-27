@@ -2,8 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
 
-const generateToken = (id, is_admin) => {
-  return jwt.sign({ id, is_admin }, process.env.JWT_SECRET, {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '30d',
   });
 };
@@ -35,7 +35,8 @@ export const registerUser = async (req, res) => {
       id: user.id,
       email: user.email,
       display_name: user.display_name,
-      token: generateToken(user.id, user.is_admin),
+      role: user.role,
+      token: generateToken(user.id, user.role),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -55,8 +56,8 @@ export const loginUser = async (req, res) => {
         id: user.id,
         email: user.email,
         display_name: user.display_name,
-        is_admin: user.is_admin,
-        token: generateToken(user.id, user.is_admin),
+        role: user.role,
+        token: generateToken(user.id, user.role),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -81,7 +82,7 @@ export const getUserProfile = async (req, res) => {
         level: true,
         total_points: true,
         is_premium: true,
-        is_admin: true,
+        role: true,
         created_at: true,
       },
     });
@@ -116,8 +117,8 @@ export const updateUserProfile = async (req, res) => {
         email: updatedUser.email,
         display_name: updatedUser.display_name,
         avatar_url: updatedUser.avatar_url,
-        is_admin: updatedUser.is_admin,
-        token: generateToken(updatedUser.id, updatedUser.is_admin),
+        role: updatedUser.role,
+        token: generateToken(updatedUser.id, updatedUser.role),
       });
     } else {
       res.status(404).json({ message: 'User not found' });

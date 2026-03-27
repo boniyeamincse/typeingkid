@@ -14,15 +14,24 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform shadow-md shadow-primary-500/20">
-            <Zap size={18} className="text-white fill-current" />
+    <nav className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 relative group-hover:scale-110 transition-transform duration-300 logo-shadow">
+            <img 
+              src="/typing_kid_logo.png" 
+              alt="Typing Kid" 
+              className="w-full h-full object-contain pointer-events-none"
+            />
           </div>
-          <span className="text-xl font-bold text-slate-800">
-            TypingKids
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xl font-black text-slate-800 tracking-tight leading-none">
+              Typing<span className="text-secondary-500">Kid</span>
+            </span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              Master the keys
+            </span>
+          </div>
         </Link>
 
         <div className="flex items-center gap-6">

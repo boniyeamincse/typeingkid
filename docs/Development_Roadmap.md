@@ -1,4 +1,4 @@
-# TypeMaster — Step-by-Step Development Roadmap 🗺️
+# Typing Kid — Step-by-Step Development Roadmap 🗺️
 
 This document outlines the granular tasks and subtasks required to build the TypeMaster platform from scratch. Tasks are grouped into logical phases to allow parallel development by team members.
 
@@ -42,20 +42,20 @@ This document outlines the granular tasks and subtasks required to build the Typ
 ### 2.3 Profile Management
 - [ ] Build Profile page (/profile).
 - [ ] Implement API to update user display name and avatar.
-- [ ] Integrate avatar upload to AWS S3 or local storage.
+-
 
 ### 2.4 Role-Based Access Plan (User, Educator, Admin)
-- [ ] Add `role` field to User model (`USER | EDUCATOR | ADMIN`) and migrate from `is_admin`.
-- [ ] Include `role` claim in JWT payload and expose it in auth/profile responses.
-- [ ] Create generic authorization middleware (`authorizeRoles(...roles)`) for route-level access.
-- [ ] Define and enforce route permissions:
+- [x] Add `role` field to User model (`USER | EDUCATOR | ADMIN`) and migrate from `is_admin`.
+- [x] Include `role` claim in JWT payload and expose it in auth/profile responses.
+- [x] Create generic authorization middleware (`authorizeRoles(...roles)`) for route-level access.
+- [x] Define and enforce route permissions:
 	- `USER`: typing lessons, own profile, own progress history.
 	- `EDUCATOR`: everything in `USER` + class management, student progress reports, lesson assignment.
 	- `ADMIN`: everything in `EDUCATOR` + global lesson CRUD, platform moderation, user role management.
-- [ ] Add protected frontend routes per role (`/dashboard`, `/educator`, `/admin`) with fallback redirects.
-- [ ] Update navbar/sidebar to show role-based menus and hide unauthorized actions.
-- [ ] Add seed accounts for local dev (`demo_user`, `demo_educator`, `demo_admin`).
-- [ ] Add authorization tests (API + frontend route guards) for role boundaries.
+- [x] Add protected frontend routes per role (`/dashboard`, `/educator`, `/admin`) with fallback redirects.
+- [x] Update navbar/sidebar to show role-based menus and hide unauthorized actions.
+- [x] Add seed accounts for local dev (`demo_user`, `demo_educator`, `demo_admin`).
+- [x] Add authorization tests (API + frontend route guards) for role boundaries.
 
 ---
 

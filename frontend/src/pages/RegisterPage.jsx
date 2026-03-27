@@ -64,7 +64,7 @@ const RegisterPage = () => {
             <UserPlus size={24} />
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Create Account</h2>
-          <p className="text-slate-500">Join TypingKids and improve your typing speed</p>
+          <p className="text-slate-500">Join <span className="text-secondary-600 font-bold">Typing Kids</span> and improve your typing speed</p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-5">

@@ -58,7 +58,7 @@ const LoginPage = () => {
             <LogIn size={24} />
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
-          <p className="text-slate-500">Sign in to continue your typing journey</p>
+          <p className="text-slate-500">Sign in to continue your <span className="text-secondary-600 font-bold uppercase tracking-tighter">Typing Kid</span> journey</p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-6">

@@ -1,4 +1,4 @@
-# TypeMaster — Gamified Typing Platform
+# Typing kid — Gamified Typing Platform
 ## Full Software Documentation
 
 **Version:** 1.0.0  

@@ -12,6 +12,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  EDUCATOR
+  ADMIN
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -22,11 +28,13 @@ model User {
   level         Int      @default(1)
   total_points  Int      @default(0)
   is_premium    Boolean  @default(false)
-  is_admin      Boolean  @default(false)
+  role          Role     @default(USER)
   created_at    DateTime @default(now())
   last_active_at DateTime @updatedAt
 
   lessonProgress LessonProgress[]
+  classrooms     Classroom[]
+  memberships    ClassroomMembership[]
 
   @@map("users")
 }
@@ -42,6 +50,7 @@ model Lesson {
   updated_at  DateTime @updatedAt
 
   lessonProgress LessonProgress[]
+  assignments    LessonAssignment[]
 
   @@map("lessons")
 }
@@ -58,4 +67,43 @@ model LessonProgress {
   lesson Lesson @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
 
   @@map("lesson_progress")
+}
+
+model Classroom {
+  id          String   @id @default(uuid())
+  name        String
+  educator_id String
+  created_at  DateTime @default(now())
+
+  educator    User                  @relation(fields: [educator_id], references: [id], onDelete: Cascade)
+  members     ClassroomMembership[]
+  assignments LessonAssignment[]
+
+  @@map("classrooms")
+}
+
+model ClassroomMembership {
+  id           String   @id @default(uuid())
+  classroom_id String
+  student_id   String
+  joined_at    DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
+  student   User      @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@unique([classroom_id, student_id])
+  @@map("classroom_memberships")
+}
+
+model LessonAssignment {
+  id           String   @id @default(uuid())
+  classroom_id String
+  lesson_id    String
+  assigned_at  DateTime @default(now())
+  due_at       DateTime?
+
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Cascade)
+  lesson    Lesson    @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+  @@map("lesson_assignments")
 }
