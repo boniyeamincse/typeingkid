@@ -18,10 +18,10 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [x] Create basic project structure (`src/controllers`, `src/services`, `src/routes`, `src/models`).
 
 ### 1.3 Frontend Initialization (React/Vite)
-- [ ] Initialize React project using Vite.
-- [ ] Install core dependencies (Tailwind CSS, Redux Toolkit, React Router, Socket.IO-client).
-- [ ] Configure Tailwind CSS with project color palette.
-- [ ] Create basic folder structure (`src/components`, `src/pages`, `src/hooks`, `src/store`).
+- [x] Initialize React project using Vite.
+- [x] Install core dependencies (Tailwind CSS, Redux Toolkit, React Router, Socket.IO-client).
+- [x] Configure Tailwind CSS with project color palette.
+- [x] Create basic folder structure (`src/components`, `src/pages`, `src/hooks`, `src/store`).
 
 ---
 

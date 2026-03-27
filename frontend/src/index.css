@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+:root {
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-family);
+  @apply bg-slate-900 text-slate-100 antialiased;
+}
+
+/* Custom design tokens for TypeMaster */
+@theme {
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  
+  --color-accent-500: #f43f5e;
+  --color-accent-600: #e11d48;
+}
