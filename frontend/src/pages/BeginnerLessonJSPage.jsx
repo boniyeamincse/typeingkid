@@ -342,47 +342,23 @@ const BeginnerLessonJSPage = () => {
           Back to Beginner Lessons
         </Link>
 
-        <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-7 shadow-sm mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <section className="relative bg-slate-200/70 border border-slate-300 rounded-3xl p-4 md:p-8 overflow-hidden">
+          <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <p className="text-xs uppercase tracking-widest font-black text-primary-600 mb-1">
                 Beginner {String(parsedLessonNumber).padStart(2, '0')}
               </p>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900">{lesson.title}</h1>
-              <p className="text-slate-500 mt-1">
-                Type only these keys: {Array.from(targetKeys).join(', ') || 'A-Z'} and Space.
-              </p>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900">{lesson.title}</h1>
             </div>
             <button
               type="button"
               onClick={onRestart}
               className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white rounded-xl px-4 py-2.5 font-bold hover:bg-black transition-colors"
             >
-              <RotateCcw size={16} /> Restart
+              <RotateCcw size={16} /> Retake
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">WPM</p>
-              <p className="text-2xl font-black text-slate-900">{wpm}</p>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Accuracy</p>
-              <p className="text-2xl font-black text-slate-900">{accuracy}%</p>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Time</p>
-              <p className="text-2xl font-black text-slate-900">{elapsedDisplay}</p>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Progress</p>
-              <p className="text-2xl font-black text-slate-900">{progress}%</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative bg-slate-200/70 border border-slate-300 rounded-3xl p-4 md:p-8 overflow-hidden mb-4">
           <div className="flex flex-col lg:flex-row items-stretch gap-4 lg:gap-6 mb-6">
             <div className="w-full lg:w-56 bg-sky-200 border-4 border-slate-400 rounded-2xl p-4 flex flex-col items-center justify-center">
               <div className="text-5xl leading-none">💻</div>
@@ -423,59 +399,79 @@ const BeginnerLessonJSPage = () => {
 
           <div className="pointer-events-none absolute bottom-[-80px] left-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] rotate-12" />
           <div className="pointer-events-none absolute bottom-[-80px] right-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] -rotate-12" />
-        </section>
 
-        <section className="bg-slate-100 border border-slate-200 rounded-2xl p-3 md:p-4 mb-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {upcomingLetters.map((item, idx) => (
-              <div
-                key={`${item.label}-${idx}`}
-                className={`min-w-20 h-16 rounded-lg border flex items-center justify-center text-4xl font-light transition-colors ${
-                  item.isCurrent
-                    ? 'bg-primary-500 text-white border-primary-600'
-                    : 'bg-white text-slate-700 border-slate-300'
-                }`}
-              >
-                {item.label}
+          <div className="mt-5 bg-slate-100 border border-slate-300 rounded-2xl p-3 md:p-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {upcomingLetters.map((item, idx) => (
+                <div
+                  key={`${item.label}-${idx}`}
+                  className={`min-w-20 h-16 rounded-lg border flex items-center justify-center text-4xl font-light transition-colors ${
+                    item.isCurrent
+                      ? 'bg-primary-500 text-white border-primary-600'
+                      : 'bg-white text-slate-700 border-slate-300'
+                  }`}
+                >
+                  {item.label}
+                </div>
+              ))}
+              {upcomingLetters.length === 0 ? (
+                <div className="text-sm text-slate-500 font-semibold px-2 py-3">No upcoming letters.</div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-5 bg-white border border-slate-300 rounded-2xl p-4 md:p-5">
+            <h2 className="font-black text-slate-800 mb-3">Practice Line</h2>
+            <div className="leading-10 text-2xl md:text-3xl font-black tracking-wide break-words">
+              {charMap.map((item, idx) => {
+                const char = item.char === ' ' ? '\u00A0' : item.char.toUpperCase();
+                const isCurrent = idx === cursorIndex;
+
+                let classes = 'px-0.5 rounded ';
+                if (item.state === 'correct') classes += 'text-emerald-600';
+                if (item.state === 'incorrect') classes += 'text-rose-600 bg-rose-100';
+                if (item.state === 'pending') classes += 'text-slate-400';
+                if (isCurrent) classes += ' ring-2 ring-primary-500 text-slate-900';
+
+                return (
+                  <span key={`${item.char}-${idx}`} className={classes}>
+                    {char}
+                  </span>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">WPM</p>
+                <p className="text-2xl font-black text-slate-900">{wpm}</p>
               </div>
-            ))}
-            {upcomingLetters.length === 0 ? (
-              <div className="text-sm text-slate-500 font-semibold px-2 py-3">No upcoming letters.</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Accuracy</p>
+                <p className="text-2xl font-black text-slate-900">{accuracy}%</p>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Time</p>
+                <p className="text-2xl font-black text-slate-900">{elapsedDisplay}</p>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Progress</p>
+                <p className="text-2xl font-black text-slate-900">{progress}%</p>
+              </div>
+            </div>
+
+            {isFinished ? (
+              <p className="mt-3 text-emerald-600 font-bold">
+                Great job! You completed beginner lesson {String(parsedLessonNumber).padStart(2, '0')}.
+              </p>
+            ) : (
+              <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
+            )}
+            {isAutoReturning ? (
+              <p className="mt-2 text-primary-600 text-sm font-semibold">Returning to beginner lessons...</p>
             ) : null}
+            {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
           </div>
-        </section>
-
-        <section className="mt-6 bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
-          <h2 className="font-black text-slate-800 mb-3">Practice Line</h2>
-          <div className="leading-10 text-2xl md:text-3xl font-black tracking-wide break-words">
-            {charMap.map((item, idx) => {
-              const char = item.char === ' ' ? '\u00A0' : item.char.toUpperCase();
-              const isCurrent = idx === cursorIndex;
-
-              let classes = 'px-0.5 rounded ';
-              if (item.state === 'correct') classes += 'text-emerald-600';
-              if (item.state === 'incorrect') classes += 'text-rose-600 bg-rose-100';
-              if (item.state === 'pending') classes += 'text-slate-400';
-              if (isCurrent) classes += ' ring-2 ring-primary-500 text-slate-900';
-
-              return (
-                <span key={`${item.char}-${idx}`} className={classes}>
-                  {char}
-                </span>
-              );
-            })}
-          </div>
-          {isFinished ? (
-            <p className="mt-3 text-emerald-600 font-bold">
-              Great job! You completed beginner lesson {String(parsedLessonNumber).padStart(2, '0')}.
-            </p>
-          ) : (
-            <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
-          )}
-          {isAutoReturning ? (
-            <p className="mt-2 text-primary-600 text-sm font-semibold">Returning to beginner lessons...</p>
-          ) : null}
-          {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
         </section>
       </main>
     </div>
