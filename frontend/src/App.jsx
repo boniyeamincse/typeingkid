@@ -4,6 +4,8 @@ import { store } from './store';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
+import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -12,13 +14,14 @@ function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           {/* Catch-all redirect */}

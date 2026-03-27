@@ -95,3 +95,34 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+
+    if (user) {
+      const updatedUser = await prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          display_name: req.body.display_name || user.display_name,
+          avatar_url: req.body.avatar_url || user.avatar_url,
+        },
+      });
+
+      res.json({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        display_name: updatedUser.display_name,
+        avatar_url: updatedUser.avatar_url,
+        is_admin: updatedUser.is_admin,
+        token: generateToken(updatedUser.id, updatedUser.is_admin),
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

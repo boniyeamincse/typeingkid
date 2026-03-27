@@ -1,33 +1,14 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { LogOut, Trophy, BookOpen, Settings, User } from 'lucide-react';
+import { Trophy, BookOpen, Settings, User } from 'lucide-react';
+import Navbar from '../components/layout/Navbar';
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const onLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Navigation */}
-      <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold text-primary-500">TypeMaster</div>
-          <div className="flex items-center gap-6">
-            <button onClick={onLogout} className="text-slate-400 hover:text-white transition-colors flex items-center gap-2">
-              <LogOut size={18} />
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
