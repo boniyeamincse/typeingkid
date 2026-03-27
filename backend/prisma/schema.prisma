@@ -26,5 +26,36 @@ model User {
   created_at    DateTime @default(now())
   last_active_at DateTime @updatedAt
 
+  lessonProgress LessonProgress[]
+
   @@map("users")
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  difficulty  String   // "beginner" | "intermediate" | "advanced"
+  order_index Int      @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  lessonProgress LessonProgress[]
+
+  @@map("lessons")
+}
+
+model LessonProgress {
+  id           String   @id @default(uuid())
+  user_id      String
+  lesson_id    String
+  wpm          Int
+  accuracy     Int
+  completed_at DateTime @default(now())
+
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+  @@map("lesson_progress")
 }

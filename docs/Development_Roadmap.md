@@ -55,9 +55,9 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [x] Implement backspace and cursor tracking.
 
 ### 3.2 Lesson Management (Backend)
-- [ ] Create Lesson and LessonProgress models.
-- [ ] Build CRUD APIs for admins to manage lessons.
-- [ ] Create API for fetching lessons by difficulty level.
+- [x] Create Lesson and LessonProgress models.
+- [x] Build CRUD APIs for admins to manage lessons.
+- [x] Create API for fetching lessons by difficulty level.
 
 ### 3.3 Lesson Player UI
 - [ ] Build Lesson Player component with character highlighting.
