@@ -59,6 +59,22 @@ TypeMaster is a full-stack, gamified web-based typing platform designed to teach
    npm run dev
    ```
 
+### One-Command Development Run (.sh)
+
+Run everything needed for development from the project root:
+
+```bash
+./dev.sh
+```
+
+What `dev.sh` does:
+- Ensures backend/frontend dependencies exist.
+- Applies Prisma migrations and regenerates Prisma client.
+- Seeds role-based demo accounts (`demo_user`, `demo_educator`, `demo_admin`).
+- Starts backend (`http://localhost:5000`) and frontend (`http://localhost:5173`).
+
+Note: Current backend datasource is SQLite, so no separate database server process is required.
+
 4. **Seed Role-Based Demo Users (for RBAC testing):**
    ```bash
    cd backend
