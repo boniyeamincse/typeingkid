@@ -111,7 +111,7 @@ export const getLessonsByDifficulty = async (req, res) => {
         is_active: true,
         ...(difficulty && { difficulty }),
       },
-      orderBy: { order_index: 'asc' },
+      orderBy: [{ difficulty: 'asc' }, { order_index: 'asc' }],
       select: {
         id: true,
         title: true,
@@ -121,6 +121,42 @@ export const getLessonsByDifficulty = async (req, res) => {
       },
     });
     res.json(lessons);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── Protected: Get a lesson by difficulty + order index ─────────────────────
+// @route  GET /api/lessons/difficulty/:difficulty/order/:orderIndex
+// @access Protected
+export const getLessonByDifficultyAndOrder = async (req, res) => {
+  const { difficulty, orderIndex } = req.params;
+
+  if (!VALID_DIFFICULTIES.includes(difficulty)) {
+    return res
+      .status(400)
+      .json({ message: `difficulty must be one of: ${VALID_DIFFICULTIES.join(', ')}` });
+  }
+
+  const parsedOrder = Number.parseInt(orderIndex, 10);
+  if (Number.isNaN(parsedOrder) || parsedOrder < 0) {
+    return res.status(400).json({ message: 'orderIndex must be a non-negative integer.' });
+  }
+
+  try {
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        is_active: true,
+        difficulty,
+        order_index: parsedOrder,
+      },
+    });
+
+    if (!lesson) {
+      return res.status(404).json({ message: 'Lesson not found.' });
+    }
+
+    res.json(lesson);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -190,6 +226,60 @@ export const getLessonProgress = async (req, res) => {
       orderBy: { completed_at: 'desc' },
     });
     res.json(records);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── Protected: Get user lesson progress summary ─────────────────────────────
+// @route  GET /api/lessons/progress/summary?difficulty=beginner
+// @access Protected
+export const getMyLessonProgressSummary = async (req, res) => {
+  const { difficulty } = req.query;
+
+  if (difficulty && !VALID_DIFFICULTIES.includes(difficulty)) {
+    return res
+      .status(400)
+      .json({ message: `difficulty must be one of: ${VALID_DIFFICULTIES.join(', ')}` });
+  }
+
+  try {
+    const lessons = await prisma.lesson.findMany({
+      where: {
+        is_active: true,
+        ...(difficulty && { difficulty }),
+      },
+      orderBy: [{ difficulty: 'asc' }, { order_index: 'asc' }],
+      include: {
+        lessonProgress: {
+          where: { user_id: req.user.id },
+          orderBy: { completed_at: 'desc' },
+        },
+      },
+    });
+
+    const summary = lessons.map((lesson) => {
+      const attempts = lesson.lessonProgress.length;
+      const bestWpm = attempts > 0 ? Math.max(...lesson.lessonProgress.map((item) => item.wpm)) : null;
+      const bestAccuracy =
+        attempts > 0 ? Math.max(...lesson.lessonProgress.map((item) => item.accuracy)) : null;
+      const lastCompletedAt = attempts > 0 ? lesson.lessonProgress[0].completed_at : null;
+
+      return {
+        id: lesson.id,
+        title: lesson.title,
+        difficulty: lesson.difficulty,
+        order_index: lesson.order_index,
+        is_active: lesson.is_active,
+        attempts,
+        best_wpm: bestWpm,
+        best_accuracy: bestAccuracy,
+        last_completed_at: lastCompletedAt,
+        is_completed: attempts > 0,
+      };
+    });
+
+    res.json(summary);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
