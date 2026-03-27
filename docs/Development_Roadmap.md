@@ -12,10 +12,10 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [x] Set up `.gitignore`, `.editorconfig`, and README.
 
 ### 1.2 Backend Initialization (Node.js/Express)
-- [ ] Initialize Node.js project.
-- [ ] Install core dependencies (Express, Prisma, Zod, JWT, Socket.IO).
-- [ ] Configure Prisma with PostgreSQL connection.
-- [ ] Create basic project structure (`src/controllers`, `src/services`, `src/routes`, `src/models`).
+- [x] Initialize Node.js project.
+- [x] Install core dependencies (Express, Prisma, Zod, JWT, Socket.IO).
+- [x] Configure Prisma with PostgreSQL connection.
+- [x] Create basic project structure (`src/controllers`, `src/services`, `src/routes`, `src/models`).
 
 ### 1.3 Frontend Initialization (React/Vite)
 - [ ] Initialize React project using Vite.
