@@ -1,11 +1,31 @@
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Trophy, Zap, Star, Globe, ArrowRight, Keyboard, BookOpen, ClipboardCheck, Gamepad2 } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
+import api from '../services/api';
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
+  const [topSpeed, setTopSpeed] = useState(0);
+
+  useEffect(() => {
+    const loadTopSpeed = async () => {
+      try {
+        const response = await api.get('/lessons/progress/summary');
+        const maxWpm = response.data.reduce((max, row) => {
+          const wpm = Number.isFinite(row.best_wpm) ? row.best_wpm : 0;
+          return Math.max(max, wpm);
+        }, 0);
+        setTopSpeed(maxWpm);
+      } catch {
+        setTopSpeed(0);
+      }
+    };
+
+    loadTopSpeed();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-primary-500/20">
@@ -30,7 +50,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {[
             { label: 'Current Level', value: user?.level || 1, icon: Trophy, color: 'bg-yellow-100 text-yellow-600' },
-            { label: 'Top Speed', value: '72 WPM', icon: Zap, color: 'bg-primary-100 text-primary-600' },
+            { label: 'Top Speed', value: `${topSpeed} WPM`, icon: Zap, color: 'bg-primary-100 text-primary-600' },
             { label: 'Experience Point', value: user?.xp || 0, icon: Star, color: 'bg-secondary-100 text-secondary-600' },
             { label: 'Global Rank', value: '#128', icon: Globe, color: 'bg-emerald-100 text-emerald-600' },
           ].map((stat, i) => (
