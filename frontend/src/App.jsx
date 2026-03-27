@@ -8,6 +8,8 @@ import LandingPage from './pages/LandingPage';
 import LessonsPage from './pages/LessonsPage';
 import BeginnerLessonsPage from './pages/BeginnerLessonsPage';
 import BeginnerLessonJSPage from './pages/BeginnerLessonJSPage';
+import IntermediateLessonsPage from './pages/IntermediateLessonsPage';
+import AdvancedLessonsPage from './pages/AdvancedLessonsPage';
 import ProfilePage from './pages/ProfilePage';
 import EducatorPage from './pages/EducatorPage';
 import AdminPage from './pages/AdminPage';
@@ -29,7 +31,11 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/lessons/beginner" element={<BeginnerLessonsPage />} />
-            <Route path="/lessons/beginner/:lessonNumber" element={<BeginnerLessonJSPage />} />
+            <Route path="/lessons/intermediate" element={<IntermediateLessonsPage />} />
+            <Route path="/lessons/advanced" element={<AdvancedLessonsPage />} />
+            <Route path="/lessons/beginner/:lessonNumber" element={<BeginnerLessonJSPage difficulty="beginner" />} />
+            <Route path="/lessons/intermediate/:lessonNumber" element={<BeginnerLessonJSPage difficulty="intermediate" />} />
+            <Route path="/lessons/advanced/:lessonNumber" element={<BeginnerLessonJSPage difficulty="advanced" />} />
             <Route path="/lessons/beginner/01-js" element={<Navigate to="/lessons/beginner/1" replace />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

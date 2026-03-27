@@ -14,11 +14,13 @@ const difficultyBlocks = [
     title: 'Intermediate',
     description: 'Increase speed with punctuation, mixed words, and longer sentence flow.',
     color: 'bg-amber-50 border-amber-200 text-amber-700',
+    path: '/lessons/intermediate',
   },
   {
     title: 'Advanced',
     description: 'Master high-speed typing with complex paragraphs and coding-style snippets.',
     color: 'bg-rose-50 border-rose-200 text-rose-700',
+    path: '/lessons/advanced',
   },
 ];
 

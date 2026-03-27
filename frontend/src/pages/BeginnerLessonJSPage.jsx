@@ -5,19 +5,23 @@ import Navbar from '../components/layout/Navbar';
 import useTypingEngine from '../hooks/useTypingEngine';
 import api from '../services/api';
 
-const BEGINNER_PROGRESS_KEY = 'typingkid_beginner_progress_v1';
+const LESSON_LABEL = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+};
+
+const getProgressStorageKey = (difficulty) => `typingkid_${difficulty}_progress_v1`;
 
 const toLessonPath = (lesson) => {
   if (!lesson) return '/lessons';
-  if (lesson.difficulty === 'beginner') {
-    return `/lessons/beginner/${lesson.order_index + 1}`;
-  }
-  return '/lessons';
+  return `/lessons/${lesson.difficulty}/${lesson.order_index + 1}`;
 };
 
-const readLocalBeginnerProgress = () => {
+const readLocalProgress = (difficulty) => {
+  const progressKey = getProgressStorageKey(difficulty);
   try {
-    const raw = localStorage.getItem(BEGINNER_PROGRESS_KEY);
+    const raw = localStorage.getItem(progressKey);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     return typeof parsed === 'object' && parsed ? parsed : {};
@@ -26,10 +30,11 @@ const readLocalBeginnerProgress = () => {
   }
 };
 
-const writeLocalBeginnerProgress = (updateFn) => {
-  const current = readLocalBeginnerProgress();
+const writeLocalProgress = (difficulty, updateFn) => {
+  const progressKey = getProgressStorageKey(difficulty);
+  const current = readLocalProgress(difficulty);
   const next = updateFn(current);
-  localStorage.setItem(BEGINNER_PROGRESS_KEY, JSON.stringify(next));
+  localStorage.setItem(progressKey, JSON.stringify(next));
 };
 
 const keyboardRows = [
@@ -124,10 +129,12 @@ const getStarsFromAccuracy = (acc) => {
   return 1;
 };
 
-const BeginnerLessonJSPage = () => {
+const BeginnerLessonJSPage = ({ difficulty = 'beginner' }) => {
   const { lessonNumber } = useParams();
   const navigate = useNavigate();
   const parsedLessonNumber = Number.parseInt(lessonNumber || '1', 10);
+  const isBeginner = difficulty === 'beginner';
+  const difficultyLabel = LESSON_LABEL[difficulty] || 'Lesson';
 
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,7 +158,7 @@ const BeginnerLessonJSPage = () => {
         hasSavedProgressRef.current = false;
 
         const orderIndex = parsedLessonNumber - 1;
-        const response = await api.get(`/lessons/difficulty/beginner/order/${orderIndex}`);
+        const response = await api.get(`/lessons/difficulty/${difficulty}/order/${orderIndex}`);
         setLesson(response.data);
       } catch (error) {
         setLoadError(error.response?.data?.message || 'Failed to load lesson.');
@@ -161,7 +168,7 @@ const BeginnerLessonJSPage = () => {
     };
 
     loadLesson();
-  }, [parsedLessonNumber]);
+  }, [parsedLessonNumber, difficulty]);
 
   const lessonPattern = useMemo(() => {
     if (!lesson?.content) return '';
@@ -193,7 +200,7 @@ const BeginnerLessonJSPage = () => {
   const allowedCharacters = useMemo(() => {
     const chars = new Set();
     for (const char of lessonPattern) {
-      if (char === ' ' || /[a-z]/.test(char)) {
+      if (char !== '\n' && char !== '\r') {
         chars.add(char);
       }
     }
@@ -291,7 +298,7 @@ const BeginnerLessonJSPage = () => {
     hasSavedProgressRef.current = false;
     setSaveError('');
     setAdaptiveSuggestion(null);
-    writeLocalBeginnerProgress((current) => ({
+    writeLocalProgress(difficulty, (current) => ({
       ...current,
       [String(parsedLessonNumber - 1)]: {
         inProgress: false,
@@ -302,7 +309,7 @@ const BeginnerLessonJSPage = () => {
     reset();
   };
 
-  const fallbackNextPath = '/lessons/beginner';
+  const fallbackNextPath = `/lessons/${difficulty}`;
   const recommendedLesson = adaptiveSuggestion?.lesson ?? null;
   const recommendedPath = toLessonPath(recommendedLesson);
   const continuePath = adaptiveSuggestion ? recommendedPath : fallbackNextPath;
@@ -320,7 +327,7 @@ const BeginnerLessonJSPage = () => {
     if (!lesson || Number.isNaN(parsedLessonNumber) || parsedLessonNumber <= 0) return;
 
     const lessonKey = String(parsedLessonNumber - 1);
-    writeLocalBeginnerProgress((current) => {
+    writeLocalProgress(difficulty, (current) => {
       const previous = current[lessonKey] || {};
       return {
         ...current,
@@ -332,7 +339,7 @@ const BeginnerLessonJSPage = () => {
         },
       };
     });
-  }, [lesson, parsedLessonNumber, cursorIndex, progress, isFinished]);
+  }, [lesson, parsedLessonNumber, cursorIndex, progress, isFinished, difficulty]);
 
   if (isLoading) {
     return (
@@ -353,11 +360,11 @@ const BeginnerLessonJSPage = () => {
         <Navbar />
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link
-            to="/lessons/beginner"
+            to={`/lessons/${difficulty}`}
             className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors mb-6 group"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            Back to Beginner Lessons
+            Back to {difficultyLabel} Lessons
           </Link>
           <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-rose-700 font-semibold">
             {loadError || 'Lesson not found.'}
@@ -373,18 +380,18 @@ const BeginnerLessonJSPage = () => {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          to="/lessons/beginner"
+          to={`/lessons/${difficulty}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors mb-6 group"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Beginner Lessons
+          Back to {difficultyLabel} Lessons
         </Link>
 
         <section className="relative bg-slate-200/70 border border-slate-300 rounded-3xl p-4 md:p-8 overflow-hidden">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <p className="text-xs uppercase tracking-widest font-black text-primary-600 mb-1">
-                Beginner {String(parsedLessonNumber).padStart(2, '0')}
+                {difficultyLabel} {String(parsedLessonNumber).padStart(2, '0')}
               </p>
               <h1 className="text-xl md:text-2xl font-black text-slate-900">{lesson.title}</h1>
             </div>
@@ -405,7 +412,11 @@ const BeginnerLessonJSPage = () => {
 
             <div className="relative flex-1 bg-white rounded-3xl border border-slate-200 p-6 md:p-8">
               <div className="absolute left-[-14px] top-10 w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-r-[14px] border-r-white" />
-              <p className="text-slate-600 text-lg">Howdy! Use your home row fingers to:</p>
+              <p className="text-slate-600 text-lg">
+                {isBeginner
+                  ? 'Howdy! Use your home row fingers to:'
+                  : 'Stay steady and type the current character carefully:'}
+              </p>
               <div className="flex items-center flex-wrap gap-3 mt-4">
                 <span className="text-4xl md:text-5xl font-black text-slate-800">Type the</span>
                 <span className="inline-flex items-center justify-center min-w-20 h-20 rounded-xl border-2 border-slate-300 text-5xl font-black text-slate-800 bg-slate-50 px-4">
@@ -416,24 +427,26 @@ const BeginnerLessonJSPage = () => {
             </div>
           </div>
 
-          <div className="bg-slate-300 rounded-3xl p-4 md:p-5 border border-slate-400">
-            <div className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Keyboard Trainer</div>
+          {isBeginner ? (
+            <div className="bg-slate-300 rounded-3xl p-4 md:p-5 border border-slate-400">
+              <div className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Keyboard Trainer</div>
 
-            <div className="space-y-2">
-              {keyboardRows.map((row, rowIndex) => (
-                <div key={`row-${rowIndex}`} className="flex justify-center gap-2 flex-wrap md:flex-nowrap">
-                  {row.map((key) => (
-                    <div
-                      key={key.label + key.value}
-                      className={`h-12 md:h-14 ${key.widthClass ?? 'w-12 md:w-14'} rounded-lg border font-bold text-sm md:text-base flex items-center justify-center transition-all ${getKeyClassName(key.value, activeKey, targetKeys)}`}
-                    >
-                      {key.label}
-                    </div>
-                  ))}
-                </div>
-              ))}
+              <div className="space-y-2">
+                {keyboardRows.map((row, rowIndex) => (
+                  <div key={`row-${rowIndex}`} className="flex justify-center gap-2 flex-wrap md:flex-nowrap">
+                    {row.map((key) => (
+                      <div
+                        key={key.label + key.value}
+                        className={`h-12 md:h-14 ${key.widthClass ?? 'w-12 md:w-14'} rounded-lg border font-bold text-sm md:text-base flex items-center justify-center transition-all ${getKeyClassName(key.value, activeKey, targetKeys)}`}
+                      >
+                        {key.label}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div className="pointer-events-none absolute bottom-[-80px] left-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] rotate-12" />
           <div className="pointer-events-none absolute bottom-[-80px] right-[10%] h-60 w-40 rounded-[80%] bg-rose-300/35 blur-[1px] -rotate-12" />
@@ -499,7 +512,11 @@ const BeginnerLessonJSPage = () => {
             </div>
 
             {!isFinished ? (
-              <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
+              <p className="mt-3 text-slate-500 text-sm">
+                {isBeginner
+                  ? 'Tip: Press only highlighted lesson keys, Space, and Backspace.'
+                  : 'Tip: Type exactly what you see, including punctuation and spaces.'}
+              </p>
             ) : null}
             {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
           </div>
@@ -556,7 +573,7 @@ const BeginnerLessonJSPage = () => {
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
                 <Link
-                  to="/lessons/beginner"
+                  to={`/lessons/${difficulty}`}
                   className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors text-center"
                 >
                   Back to Lessons
