@@ -242,6 +242,16 @@ const BeginnerLessonJSPage = () => {
     return `${mins}:${secs}`;
   }, [elapsedSeconds]);
 
+  const upcomingLetters = useMemo(() => {
+    const windowSize = 8;
+    const upcoming = charMap.slice(cursorIndex, cursorIndex + windowSize);
+
+    return upcoming.map((item, index) => ({
+      label: item.char === ' ' ? 'space' : item.char,
+      isCurrent: index === 0,
+    }));
+  }, [charMap, cursorIndex]);
+
   const onRestart = () => {
     hasSavedProgressRef.current = false;
     setSaveError('');
@@ -369,6 +379,26 @@ const BeginnerLessonJSPage = () => {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Progress</p>
               <p className="text-2xl font-black text-slate-900">{progress}%</p>
             </div>
+          </div>
+        </section>
+
+        <section className="bg-slate-100 border border-slate-200 rounded-2xl p-3 md:p-4 mb-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {upcomingLetters.map((item, idx) => (
+              <div
+                key={`${item.label}-${idx}`}
+                className={`min-w-20 h-16 rounded-lg border flex items-center justify-center text-4xl font-light transition-colors ${
+                  item.isCurrent
+                    ? 'bg-primary-500 text-white border-primary-600'
+                    : 'bg-white text-slate-700 border-slate-300'
+                }`}
+              >
+                {item.label}
+              </div>
+            ))}
+            {upcomingLetters.length === 0 ? (
+              <div className="text-sm text-slate-500 font-semibold px-2 py-3">No upcoming letters.</div>
+            ) : null}
           </div>
         </section>
 
