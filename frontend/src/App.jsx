@@ -1,25 +1,32 @@
-import { useState } from 'react'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold text-primary-500 mb-4">
-        TypeMaster 🚀
-      </h1>
-      <p className="text-slate-400 text-lg max-w-md text-center">
-        Welcome to the project foundation. Backend and Frontend are now successfully initialized.
-      </p>
-      <div className="mt-8 flex gap-4">
-        <div className="px-4 py-2 bg-slate-800 rounded-lg border border-slate-700">
-          <span className="text-primary-500 font-mono">Backend:</span> Connected
-        </div>
-        <div className="px-4 py-2 bg-slate-800 rounded-lg border border-slate-700">
-          <span className="text-primary-500 font-mono">Frontend:</span> React + Vite + Tailwind 4
-        </div>
-      </div>
-    </div>
-  )
+    <Provider store={store}>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </Provider>
+  );
 }
 
-export default App
+export default App;
