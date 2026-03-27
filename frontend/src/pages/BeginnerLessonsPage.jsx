@@ -14,6 +14,19 @@ import {
 import Navbar from '../components/layout/Navbar';
 import api from '../services/api';
 
+const BEGINNER_PROGRESS_KEY = 'typingkid_beginner_progress_v1';
+
+const readLocalBeginnerProgress = () => {
+  try {
+    const raw = localStorage.getItem(BEGINNER_PROGRESS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
 const getLessonPath = (lesson) => {
   return `/lessons/beginner/${lesson.order_index + 1}`;
 };
@@ -38,6 +51,7 @@ const BeginnerLessonsPage = () => {
           api.get('/lessons?difficulty=beginner'),
           api.get('/lessons/progress/summary?difficulty=beginner'),
         ]);
+        const localProgress = readLocalBeginnerProgress();
 
         const summaryByLessonId = new Map(
           summaryResponse.data.map((item) => [item.id, item])
@@ -47,24 +61,30 @@ const BeginnerLessonsPage = () => {
           .sort((a, b) => a.order_index - b.order_index)
           .map((lesson) => {
             const summary = summaryByLessonId.get(lesson.id);
-            const isCompleted = summary?.is_completed ?? false;
+            const local = localProgress[String(lesson.order_index)] || {};
+            const isCompleted = (summary?.is_completed ?? false) || !!local.completed;
+            const isResume = !isCompleted && !!local.inProgress;
+            const localProgressPercent = Number.isFinite(local.progressPercent)
+              ? Math.max(0, Math.min(100, Math.round(local.progressPercent)))
+              : 0;
 
             return {
               id: lesson.id,
+              orderIndex: lesson.order_index,
               index: lesson.order_index + 1,
               title: lesson.title,
               avgSpeed: summary?.best_wpm ?? 0,
               avgAcc: summary?.best_accuracy ?? 0,
               time: formatAttemptTime(summary?.attempts ?? 0),
-              status: isCompleted ? 'done' : 'current',
-              progress: isCompleted ? 100 : 0,
+              status: isCompleted ? 'done' : isResume ? 'resume' : 'pending',
+              progress: isCompleted ? 100 : localProgressPercent,
               path: getLessonPath(lesson),
             };
           });
 
-        const firstPendingIndex = merged.findIndex((item) => item.status !== 'done');
+        const firstPendingIndex = merged.findIndex((item) => item.status === 'pending');
         const normalized = merged.map((item, idx) => {
-          if (item.status === 'done') return item;
+          if (item.status === 'done' || item.status === 'resume') return item;
           return {
             ...item,
             status: idx === firstPendingIndex ? 'current' : 'pending',
@@ -244,13 +264,17 @@ const BeginnerLessonsPage = () => {
                     {lesson.status === 'done' ? (
                       lesson.path ? (
                         <Link to={lesson.path} className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-emerald-50 transition-colors">
-                          <RotateCcw size={16} /> Restart
+                          <RotateCcw size={16} /> Retake
                         </Link>
                       ) : (
                         <button type="button" className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2">
-                          <RotateCcw size={16} /> Restart
+                          <RotateCcw size={16} /> Retake
                         </button>
                       )
+                    ) : lesson.status === 'resume' && lesson.path ? (
+                      <Link to={lesson.path} className="bg-primary-500 text-white px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-primary-600 transition-colors">
+                        <Play size={16} className="fill-current" /> Resume
+                      </Link>
                     ) : lesson.path ? (
                       <Link to={lesson.path} className="bg-secondary-400 text-slate-900 px-5 py-2 rounded-xl font-black inline-flex items-center gap-2 hover:bg-secondary-500 transition-colors">
                         <Play size={16} className="fill-current" /> Start

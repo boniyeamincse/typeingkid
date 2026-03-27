@@ -1,9 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import useTypingEngine from '../hooks/useTypingEngine';
 import api from '../services/api';
+
+const BEGINNER_PROGRESS_KEY = 'typingkid_beginner_progress_v1';
+
+const readLocalBeginnerProgress = () => {
+  try {
+    const raw = localStorage.getItem(BEGINNER_PROGRESS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeLocalBeginnerProgress = (updateFn) => {
+  const current = readLocalBeginnerProgress();
+  const next = updateFn(current);
+  localStorage.setItem(BEGINNER_PROGRESS_KEY, JSON.stringify(next));
+};
 
 const keyboardRows = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -28,12 +47,14 @@ const getKeyClassName = (key, activeKey, targetKeys) => {
 
 const BeginnerLessonJSPage = () => {
   const { lessonNumber } = useParams();
+  const navigate = useNavigate();
   const parsedLessonNumber = Number.parseInt(lessonNumber || '1', 10);
 
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
+  const [isAutoReturning, setIsAutoReturning] = useState(false);
   const hasSavedProgressRef = useRef(false);
 
   useEffect(() => {
@@ -159,8 +180,46 @@ const BeginnerLessonJSPage = () => {
   const onRestart = () => {
     hasSavedProgressRef.current = false;
     setSaveError('');
+    setIsAutoReturning(false);
+    writeLocalBeginnerProgress((current) => ({
+      ...current,
+      [String(parsedLessonNumber - 1)]: {
+        inProgress: false,
+        completed: false,
+        progressPercent: 0,
+      },
+    }));
     reset();
   };
+
+  useEffect(() => {
+    if (!lesson || Number.isNaN(parsedLessonNumber) || parsedLessonNumber <= 0) return;
+
+    const lessonKey = String(parsedLessonNumber - 1);
+    writeLocalBeginnerProgress((current) => {
+      const previous = current[lessonKey] || {};
+      return {
+        ...current,
+        [lessonKey]: {
+          ...previous,
+          inProgress: !isFinished && cursorIndex > 0,
+          completed: isFinished,
+          progressPercent: isFinished ? 100 : progress,
+        },
+      };
+    });
+  }, [lesson, parsedLessonNumber, cursorIndex, progress, isFinished]);
+
+  useEffect(() => {
+    if (!isFinished) return;
+
+    setIsAutoReturning(true);
+    const timeoutId = setTimeout(() => {
+      navigate('/lessons/beginner');
+    }, 1200);
+
+    return () => clearTimeout(timeoutId);
+  }, [isFinished, navigate]);
 
   if (isLoading) {
     return (
@@ -330,6 +389,9 @@ const BeginnerLessonJSPage = () => {
           ) : (
             <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
           )}
+          {isAutoReturning ? (
+            <p className="mt-2 text-primary-600 text-sm font-semibold">Returning to beginner lessons...</p>
+          ) : null}
           {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
         </section>
       </main>
