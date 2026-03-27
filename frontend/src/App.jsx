@@ -29,7 +29,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/lessons/beginner" element={<BeginnerLessonsPage />} />
-            <Route path="/lessons/beginner/01-js" element={<BeginnerLessonJSPage />} />
+            <Route path="/lessons/beginner/:lessonNumber" element={<BeginnerLessonJSPage />} />
+            <Route path="/lessons/beginner/01-js" element={<Navigate to="/lessons/beginner/1" replace />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 

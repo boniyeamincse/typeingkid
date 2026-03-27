@@ -46,6 +46,7 @@ const useTypingEngine = (text = '') => {
   const intervalRef = useRef(null);
   /** Running count of every non-backspace key pressed */
   const totalKeyPressesRef = useRef(0);
+  const charMapRef = useRef(charMap);
 
   // ─── Reset when the source text changes ─────────────────────────────────────
   useEffect(() => {
@@ -57,6 +58,10 @@ const useTypingEngine = (text = '') => {
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
+
+  useEffect(() => {
+    charMapRef.current = charMap;
+  }, [charMap]);
 
   // ─── WPM / elapsed-time ticker ──────────────────────────────────────────────
   const startTicker = useCallback(() => {
@@ -87,6 +92,16 @@ const useTypingEngine = (text = '') => {
     return Math.round((correctChars / totalPresses) * 100);
   }, []);
 
+  useEffect(() => {
+    if (!isStarted || !startTimeRef.current) return;
+
+    const elapsedMs = Date.now() - startTimeRef.current;
+    const currentCorrectChars = charMap.filter((c) => c.state === 'correct').length;
+
+    setWpm(computeWpm(currentCorrectChars, elapsedMs));
+    setAccuracy(computeAccuracy(currentCorrectChars, totalKeyPressesRef.current));
+  }, [charMap, elapsedSeconds, isStarted, computeWpm, computeAccuracy]);
+
   // ─── Core keystroke handler ──────────────────────────────────────────────────
   /**
    * Call this with every character the user types.
@@ -102,14 +117,12 @@ const useTypingEngine = (text = '') => {
       if (key === 'Backspace' || key === '\b') {
         if (cursorIndex === 0) return;
 
-        setCharMap((prev) => {
-          const updated = [...prev];
-          updated[cursorIndex - 1] = {
-            ...updated[cursorIndex - 1],
-            state: 'pending',
-          };
-          return updated;
-        });
+        const updatedMap = [...charMapRef.current];
+        updatedMap[cursorIndex - 1] = {
+          ...updatedMap[cursorIndex - 1],
+          state: 'pending',
+        };
+        setCharMap(updatedMap);
         setCursorIndex((prev) => prev - 1);
         return;
       }
@@ -126,35 +139,18 @@ const useTypingEngine = (text = '') => {
 
       totalKeyPressesRef.current += 1;
 
-      const isCorrect = key === charMap[cursorIndex]?.char;
+      const updatedMap = [...charMapRef.current];
+      const isCorrect = key === updatedMap[cursorIndex]?.char;
       const newState = isCorrect ? 'correct' : 'incorrect';
 
-      setCharMap((prev) => {
-        const updated = [...prev];
-        updated[cursorIndex] = { ...updated[cursorIndex], state: newState };
-        return updated;
-      });
+      updatedMap[cursorIndex] = { ...updatedMap[cursorIndex], state: newState };
+      setCharMap(updatedMap);
 
       const nextIndex = cursorIndex + 1;
       setCursorIndex(nextIndex);
 
-      // ── Recalculate stats ────────────────────────────────────────────────────
-      const elapsedMs = Date.now() - startTimeRef.current;
-      // Count chars currently in 'correct' state (accounts for backspace corrections)
-      const correctChars =
-        charMap.slice(0, cursorIndex).filter((c) => c.state === 'correct').length +
-        (isCorrect ? 1 : 0);
-
-      setWpm(computeWpm(Math.max(correctChars, 0), elapsedMs));
-      setAccuracy(
-        computeAccuracy(
-          Math.max(correctChars, 0),
-          totalKeyPressesRef.current
-        )
-      );
-
       // ── Check for completion ──────────────────────────────────────────────────
-      if (nextIndex === charMap.length) {
+      if (nextIndex === updatedMap.length) {
         clearInterval(intervalRef.current);
         setIsFinished(true);
       }
@@ -163,10 +159,7 @@ const useTypingEngine = (text = '') => {
       isFinished,
       isStarted,
       cursorIndex,
-      charMap,
       startTicker,
-      computeWpm,
-      computeAccuracy,
     ]
   );
 

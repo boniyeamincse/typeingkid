@@ -1,10 +1,9 @@
-import { useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import useTypingEngine from '../hooks/useTypingEngine';
-
-const lessonPattern = 'j s j s j j s s j s j s';
+import api from '../services/api';
 
 const keyboardRows = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -12,9 +11,9 @@ const keyboardRows = [
   ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ];
 
-const getKeyClassName = (key, activeKey) => {
+const getKeyClassName = (key, activeKey, targetKeys) => {
   const isActive = activeKey === key;
-  const isTarget = key === 'J' || key === 'S';
+  const isTarget = targetKeys.has(key);
 
   if (isActive) {
     return 'bg-primary-500 text-white border-primary-600 shadow-lg shadow-primary-500/30';
@@ -28,6 +27,46 @@ const getKeyClassName = (key, activeKey) => {
 };
 
 const BeginnerLessonJSPage = () => {
+  const { lessonNumber } = useParams();
+  const parsedLessonNumber = Number.parseInt(lessonNumber || '1', 10);
+
+  const [lesson, setLesson] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const hasSavedProgressRef = useRef(false);
+
+  useEffect(() => {
+    const loadLesson = async () => {
+      if (Number.isNaN(parsedLessonNumber) || parsedLessonNumber <= 0) {
+        setLoadError('Invalid lesson number.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setLoadError('');
+        hasSavedProgressRef.current = false;
+
+        const orderIndex = parsedLessonNumber - 1;
+        const response = await api.get(`/lessons/difficulty/beginner/order/${orderIndex}`);
+        setLesson(response.data);
+      } catch (error) {
+        setLoadError(error.response?.data?.message || 'Failed to load lesson.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLesson();
+  }, [parsedLessonNumber]);
+
+  const lessonPattern = useMemo(() => {
+    if (!lesson?.content) return '';
+    return lesson.content.toLowerCase();
+  }, [lesson]);
+
   const {
     charMap,
     cursorIndex,
@@ -40,7 +79,29 @@ const BeginnerLessonJSPage = () => {
     isFinished,
   } = useTypingEngine(lessonPattern);
 
+  const targetKeys = useMemo(() => {
+    const keys = new Set();
+    for (const char of lessonPattern) {
+      if (/[a-z]/.test(char)) {
+        keys.add(char.toUpperCase());
+      }
+    }
+    return keys;
+  }, [lessonPattern]);
+
+  const allowedCharacters = useMemo(() => {
+    const chars = new Set();
+    for (const char of lessonPattern) {
+      if (char === ' ' || /[a-z]/.test(char)) {
+        chars.add(char);
+      }
+    }
+    return chars;
+  }, [lessonPattern]);
+
   useEffect(() => {
+    if (!lesson) return;
+
     const onKeyDown = (event) => {
       const key = event.key;
 
@@ -50,15 +111,38 @@ const BeginnerLessonJSPage = () => {
         return;
       }
 
-      if (key === 'j' || key === 's' || key === ' ') {
-        event.preventDefault();
-        handleKeyPress(key);
+      if (key.length === 1) {
+        const normalized = key.toLowerCase();
+        if (allowedCharacters.has(normalized)) {
+          event.preventDefault();
+          handleKeyPress(normalized);
+        }
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleKeyPress]);
+  }, [lesson, handleKeyPress, allowedCharacters]);
+
+  useEffect(() => {
+    const saveProgress = async () => {
+      if (!lesson || !isFinished || hasSavedProgressRef.current) return;
+
+      try {
+        hasSavedProgressRef.current = true;
+        setSaveError('');
+        await api.post(`/lessons/${lesson.id}/progress`, {
+          wpm,
+          accuracy,
+        });
+      } catch (error) {
+        hasSavedProgressRef.current = false;
+        setSaveError(error.response?.data?.message || 'Failed to save progress.');
+      }
+    };
+
+    saveProgress();
+  }, [lesson, isFinished, wpm, accuracy]);
 
   const expectedChar = charMap[cursorIndex]?.char ?? ' ';
   const promptKey = expectedChar === ' ' ? 'Space' : expectedChar.toUpperCase();
@@ -71,6 +155,45 @@ const BeginnerLessonJSPage = () => {
     const secs = (elapsedSeconds % 60).toString().padStart(2, '0');
     return `${mins}:${secs}`;
   }, [elapsedSeconds]);
+
+  const onRestart = () => {
+    hasSavedProgressRef.current = false;
+    setSaveError('');
+    reset();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 text-slate-900">
+        <Navbar />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-600 font-semibold">
+            Loading lesson...
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (loadError || !lesson) {
+    return (
+      <div className="min-h-screen bg-slate-100 text-slate-900">
+        <Navbar />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link
+            to="/lessons/beginner"
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-primary-600 transition-colors mb-6 group"
+          >
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+            Back to Beginner Lessons
+          </Link>
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-rose-700 font-semibold">
+            {loadError || 'Lesson not found.'}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -88,13 +211,17 @@ const BeginnerLessonJSPage = () => {
         <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-7 shadow-sm mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-widest font-black text-primary-600 mb-1">Beginner 01</p>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900">J + S Home Row Practice</h1>
-              <p className="text-slate-500 mt-1">Type only J, S, and Space. Keep your fingers on home row.</p>
+              <p className="text-xs uppercase tracking-widest font-black text-primary-600 mb-1">
+                Beginner {String(parsedLessonNumber).padStart(2, '0')}
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black text-slate-900">{lesson.title}</h1>
+              <p className="text-slate-500 mt-1">
+                Type only these keys: {Array.from(targetKeys).join(', ') || 'A-Z'} and Space.
+              </p>
             </div>
             <button
               type="button"
-              onClick={reset}
+              onClick={onRestart}
               className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white rounded-xl px-4 py-2.5 font-bold hover:bg-black transition-colors"
             >
               <RotateCcw size={16} /> Restart
@@ -150,7 +277,7 @@ const BeginnerLessonJSPage = () => {
                   {row.map((key) => (
                     <div
                       key={key}
-                      className={`h-12 w-12 md:h-14 md:w-14 rounded-lg border font-bold text-lg flex items-center justify-center transition-all ${getKeyClassName(key, activeKey)}`}
+                      className={`h-12 w-12 md:h-14 md:w-14 rounded-lg border font-bold text-lg flex items-center justify-center transition-all ${getKeyClassName(key, activeKey, targetKeys)}`}
                     >
                       {key}
                     </div>
@@ -183,7 +310,7 @@ const BeginnerLessonJSPage = () => {
               const char = item.char === ' ' ? '\u00A0' : item.char.toUpperCase();
               const isCurrent = idx === cursorIndex;
 
-              let classes = 'px-0.5 rounded '; 
+              let classes = 'px-0.5 rounded ';
               if (item.state === 'correct') classes += 'text-emerald-600';
               if (item.state === 'incorrect') classes += 'text-rose-600 bg-rose-100';
               if (item.state === 'pending') classes += 'text-slate-400';
@@ -197,10 +324,13 @@ const BeginnerLessonJSPage = () => {
             })}
           </div>
           {isFinished ? (
-            <p className="mt-3 text-emerald-600 font-bold">Great job! You completed lesson 01 J/S.</p>
+            <p className="mt-3 text-emerald-600 font-bold">
+              Great job! You completed beginner lesson {String(parsedLessonNumber).padStart(2, '0')}.
+            </p>
           ) : (
-            <p className="mt-3 text-slate-500 text-sm">Tip: Press only J, S, Space, and Backspace.</p>
+            <p className="mt-3 text-slate-500 text-sm">Tip: Press only highlighted lesson keys, Space, and Backspace.</p>
           )}
+          {saveError ? <p className="mt-2 text-rose-600 text-sm font-semibold">{saveError}</p> : null}
         </section>
       </main>
     </div>

@@ -15,11 +15,7 @@ import Navbar from '../components/layout/Navbar';
 import api from '../services/api';
 
 const getLessonPath = (lesson) => {
-  // Route exists today for lesson 01 only.
-  if (lesson.order_index === 0) {
-    return '/lessons/beginner/01-js';
-  }
-  return null;
+  return `/lessons/beginner/${lesson.order_index + 1}`;
 };
 
 const formatAttemptTime = (attempts) => {
