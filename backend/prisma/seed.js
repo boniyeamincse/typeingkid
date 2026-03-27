@@ -43,149 +43,66 @@ const PRACTICE_ITEMS = [
     .map((v) => ({ type: 'three_letter', value: v })),
 ];
 
-const buildBeginnerLessonContent = (letter) => {
-  // Keep early lessons simple: single-key rhythm with spaces.
-  const block = `${letter} ${letter} ${letter} ${letter}`;
-  return `${block} ${block} ${block}`;
+const LESSONS_PER_LEVEL = 100;
+
+const TWO_LETTER_POOL = PRACTICE_ITEMS.filter((item) => item.type === 'two_letter').map((item) => item.value);
+const THREE_LETTER_POOL = PRACTICE_ITEMS.filter((item) => item.type === 'three_letter').map((item) => item.value);
+
+const toNumberLabel = (index) => String(index + 1).padStart(3, '0');
+
+const rotatePick = (pool, start, size) => {
+  const picked = [];
+  for (let i = 0; i < size; i++) {
+    picked.push(pool[(start + i) % pool.length]);
+  }
+  return picked;
 };
 
-const beginnerLessons = beginnerAlphabet.map((letter, index) => ({
-  title: `Lesson ${String(index + 1).padStart(2, '0')} - ${letter.toUpperCase()} Key`,
-  content: buildBeginnerLessonContent(letter),
+const buildBeginnerComboContent = (index) => {
+  const twoLetterSet = rotatePick(TWO_LETTER_POOL, index * 2, 8);
+  const threeLetterSet = rotatePick(THREE_LETTER_POOL, index * 3, 4);
+  return `${twoLetterSet.join(' ')} ${threeLetterSet.join(' ')} ${twoLetterSet.join(' ')}`;
+};
+
+const buildIntermediateSentence = (index) => {
+  const a = TWO_LETTER_POOL[index % TWO_LETTER_POOL.length];
+  const b = THREE_LETTER_POOL[(index * 2) % THREE_LETTER_POOL.length];
+  const c = THREE_LETTER_POOL[(index * 5) % THREE_LETTER_POOL.length];
+  return `Lesson ${index + 1} trains sentence rhythm, so keep your pace steady, type with control, and flow through ${a}, ${b}, and ${c} patterns with clear punctuation.`;
+};
+
+const buildAdvancedParagraph = (index) => {
+  const a = THREE_LETTER_POOL[index % THREE_LETTER_POOL.length];
+  const b = THREE_LETTER_POOL[(index * 3) % THREE_LETTER_POOL.length];
+  const c = TWO_LETTER_POOL[(index * 4) % TWO_LETTER_POOL.length];
+  return `Advanced lesson ${index + 1} focuses on full-paragraph endurance and precision. Read ahead, maintain a light touch, and recover quickly when you miss a key. Keep your rhythm stable while passing through ${a}, ${b}, and ${c} clusters, and protect accuracy as speed rises across every sentence in this drill.`;
+};
+
+const beginnerLessons = Array.from({ length: LESSONS_PER_LEVEL }, (_, index) => ({
+  title: `Beginner ${toNumberLabel(index)} - Combo Letters`,
+  content: buildBeginnerComboContent(index),
   difficulty: 'beginner',
   order_index: index,
   is_active: true,
 }));
 
-// ── Home-row lessons (27+) ────────────────────────────────────────────────────
-const homeRowLessons = [
-  {
-    title: 'Lesson 27 - Home Row Left (asdf)',
-    content: 'asdf asdf asdf fdsa fdsa fdsa asdf fdsa asdf asdf fdsa fdsa asdf fdsa asdf',
-    difficulty: 'beginner',
-    order_index: 26,
-    is_active: true,
-  },
-  {
-    title: 'Lesson 28 - Home Row Right (jkl;)',
-    content: 'jkl; jkl; jkl; ;lkj ;lkj ;lkj jkl; ;lkj jkl; jkl; ;lkj ;lkj jkl; ;lkj jkl;',
-    difficulty: 'beginner',
-    order_index: 27,
-    is_active: true,
-  },
-  {
-    title: 'Lesson 29 - Full Home Row (asdf jkl;)',
-    content: 'asdf jkl; asdf jkl; fdsa ;lkj fdsa ;lkj asdf jkl; fdsa ;lkj asdf jkl; fdsa',
-    difficulty: 'beginner',
-    order_index: 28,
-    is_active: true,
-  },
-  {
-    title: 'Lesson 30 - Home Row Words',
-    content: 'add ask dad fall glad hall jazz lad salad flask shall jabs flask ash lads fall',
-    difficulty: 'beginner',
-    order_index: 29,
-    is_active: true,
-  },
-  {
-    title: 'Lesson 31 - Home Row Mixed Drill',
-    content: 'asd fgh jkl asl jfk dak sal fads jak lad flag glad asdf jkl; asdf fdsa ;lkj',
-    difficulty: 'beginner',
-    order_index: 30,
-    is_active: true,
-  },
-  {
-    title: 'Lesson 32 - Home Row Speed Build',
-    content: 'ask flask glass flask ask glad sad lads lass flask falls glad glass ask lads sad flask glad',
-    difficulty: 'beginner',
-    order_index: 31,
-    is_active: true,
-  },
-];
+const intermediateLessons = Array.from({ length: LESSONS_PER_LEVEL }, (_, index) => ({
+  title: `Intermediate ${toNumberLabel(index)} - Sentence Flow`,
+  content: buildIntermediateSentence(index),
+  difficulty: 'intermediate',
+  order_index: index,
+  is_active: true,
+}));
 
-const allBeginnerLessons = [...beginnerLessons, ...homeRowLessons];
+const advancedLessons = Array.from({ length: LESSONS_PER_LEVEL }, (_, index) => ({
+  title: `Advanced ${toNumberLabel(index)} - Paragraph Training`,
+  content: buildAdvancedParagraph(index),
+  difficulty: 'advanced',
+  order_index: index,
+  is_active: true,
+}));
 
-const intermediateLessons = [
-  {
-    title: 'Intermediate 01 - Clean Sentence Flow',
-    content: 'Typing with steady rhythm helps you stay accurate when words get longer.',
-    difficulty: 'intermediate',
-    order_index: 0,
-    is_active: true,
-  },
-  {
-    title: 'Intermediate 02 - Punctuation Control',
-    content: 'Practice commas, periods, and question marks so your speed stays smooth.',
-    difficulty: 'intermediate',
-    order_index: 1,
-    is_active: true,
-  },
-  {
-    title: 'Intermediate 03 - Sentence Switching',
-    content: 'Read the next phrase early, then type with relaxed hands and clear focus.',
-    difficulty: 'intermediate',
-    order_index: 2,
-    is_active: true,
-  },
-  {
-    title: 'Intermediate 04 - Mixed Patterns',
-    content: 'Fast learners keep accuracy high by slowing down before difficult letter groups.',
-    difficulty: 'intermediate',
-    order_index: 3,
-    is_active: true,
-  },
-  {
-    title: 'Intermediate 05 - Real Sentence Drill',
-    content: 'Small daily practice sessions build confidence, speed, and long-term typing stamina.',
-    difficulty: 'intermediate',
-    order_index: 4,
-    is_active: true,
-  },
-  {
-    title: 'Intermediate 06 - Accuracy Under Speed',
-    content: 'When your pace increases, keep your eyes ahead and trust your finger memory.',
-    difficulty: 'intermediate',
-    order_index: 5,
-    is_active: true,
-  },
-];
-
-const advancedLessons = [
-  {
-    title: 'Advanced 01 - Focused Paragraph',
-    content:
-      'Strong typists maintain a consistent rhythm across full paragraphs. They scan upcoming words, react calmly to punctuation, and recover quickly from mistakes without losing momentum.',
-    difficulty: 'advanced',
-    order_index: 0,
-    is_active: true,
-  },
-  {
-    title: 'Advanced 02 - Performance Paragraph',
-    content:
-      'To type at a high level, combine precision with endurance. Keep your wrists relaxed, avoid unnecessary force, and use deliberate breathing to stay steady through long passages.',
-    difficulty: 'advanced',
-    order_index: 1,
-    is_active: true,
-  },
-  {
-    title: 'Advanced 03 - Challenge Paragraph',
-    content:
-      'Advanced training is not only about speed. It is about control under pressure, quick adaptation to unfamiliar text, and the discipline to protect accuracy in every session.',
-    difficulty: 'advanced',
-    order_index: 2,
-    is_active: true,
-  },
-  {
-    title: 'Advanced 04 - Endurance Paragraph',
-    content:
-      'Long-form typing rewards consistency. As your pace rises, your technique must remain clean: smooth key travel, light touch, and steady attention from the first sentence to the last.',
-    difficulty: 'advanced',
-    order_index: 3,
-    is_active: true,
-  },
-];
-
-const allLessons = [...allBeginnerLessons, ...intermediateLessons, ...advancedLessons];
+const allLessons = [...beginnerLessons, ...intermediateLessons, ...advancedLessons];
 
 const seed = async () => {
   for (const user of seedUsers) {
@@ -242,7 +159,7 @@ const seed = async () => {
   }
 
   console.log('✅ Seeded demo accounts: demo_user, demo_educator, demo_admin');
-  console.log('✅ Seeded lessons: beginner, intermediate (sentences), advanced (paragraphs)');
+  console.log(`✅ Seeded lessons: ${LESSONS_PER_LEVEL} beginner (combo letters), ${LESSONS_PER_LEVEL} intermediate (sentences), ${LESSONS_PER_LEVEL} advanced (paragraphs)`);
   console.log(`✅ Seeded ${practiceCreated} practice items (letters + combos)`);
 };
 

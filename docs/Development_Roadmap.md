@@ -71,6 +71,7 @@ This document outlines the granular tasks and subtasks required to build the Typ
 - [x] Create Lesson and LessonProgress models.
 - [x] Build CRUD APIs for admins to manage lessons.
 - [x] Create API for fetching lessons by difficulty level.
+- [x] Seed 100 lessons per level: Beginner (combo letters), Intermediate (sentences), Advanced (paragraphs).
 
 ### 3.3 Lesson Player UI
 - [x] Build Lesson Player component with character highlighting.
