@@ -158,6 +158,27 @@ const BeginnerLessonJSPage = ({ difficulty = 'beginner' }) => {
         hasSavedProgressRef.current = false;
 
         const orderIndex = parsedLessonNumber - 1;
+        const summaryResponse = await api.get(`/lessons/progress/summary?difficulty=${difficulty}`);
+        const localProgress = readLocalProgress(difficulty);
+        const orderedSummary = [...summaryResponse.data].sort((a, b) => a.order_index - b.order_index);
+
+        let unlockedOrderIndex = 0;
+        for (const row of orderedSummary) {
+          if (row.order_index !== unlockedOrderIndex) continue;
+          const local = localProgress[String(row.order_index)] || {};
+          const isCompleted = !!row.is_completed || !!local.completed;
+          if (!isCompleted) break;
+          unlockedOrderIndex += 1;
+        }
+
+        if (orderIndex > unlockedOrderIndex) {
+          setLesson(null);
+          setLoadError(
+            `Lesson ${parsedLessonNumber} is locked. Complete Lesson ${unlockedOrderIndex + 1} first.`
+          );
+          return;
+        }
+
         const response = await api.get(`/lessons/difficulty/${difficulty}/order/${orderIndex}`);
         setLesson(response.data);
       } catch (error) {

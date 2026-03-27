@@ -375,12 +375,6 @@ export const getAdaptiveLessonSuggestion = async (req, res) => {
         message: 'Accuracy is below 85%, so we recommend repeating this lesson for stronger consistency.',
         lesson: currentLesson,
       };
-    } else if (accuracy !== null && wpm !== null && accuracy >= 97 && wpm >= 45 && firstLessonNextDifficulty) {
-      recommendation = {
-        type: 'promote',
-        message: `Strong performance detected. Try moving up to ${nextDifficulty}.`,
-        lesson: firstLessonNextDifficulty,
-      };
     } else if (nextInSameDifficulty) {
       recommendation = {
         type: 'next',

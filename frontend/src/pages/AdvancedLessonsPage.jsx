@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Play, RotateCcw, Lock } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import api from '../services/api';
 
@@ -112,13 +112,21 @@ const AdvancedLessonsPage = () => {
                     >
                       <RotateCcw size={16} /> Retake
                     </Link>
-                  ) : (
+                  ) : item.status === 'current' ? (
                     <Link
                       to={item.path}
                       className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold bg-rose-500 text-white hover:bg-rose-600 transition-colors"
                     >
                       <Play size={16} className="fill-current" /> Start
                     </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold bg-slate-300 text-slate-600 cursor-not-allowed"
+                    >
+                      <Lock size={16} /> Locked
+                    </button>
                   )}
                 </div>
               </div>
