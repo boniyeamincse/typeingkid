@@ -25,14 +25,79 @@ const writeLocalBeginnerProgress = (updateFn) => {
 };
 
 const keyboardRows = [
-  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+  [
+    { label: '~', value: '`' },
+    { label: '1', value: '1' },
+    { label: '2', value: '2' },
+    { label: '3', value: '3' },
+    { label: '4', value: '4' },
+    { label: '5', value: '5' },
+    { label: '6', value: '6' },
+    { label: '7', value: '7' },
+    { label: '8', value: '8' },
+    { label: '9', value: '9' },
+    { label: '0', value: '0' },
+    { label: '-', value: '-' },
+    { label: '=', value: '=' },
+    { label: 'Delete', value: 'Backspace', widthClass: 'w-20 md:w-24' },
+  ],
+  [
+    { label: 'Tab', value: 'Tab', widthClass: 'w-16 md:w-20' },
+    { label: 'Q', value: 'Q' },
+    { label: 'W', value: 'W' },
+    { label: 'E', value: 'E' },
+    { label: 'R', value: 'R' },
+    { label: 'T', value: 'T' },
+    { label: 'Y', value: 'Y' },
+    { label: 'U', value: 'U' },
+    { label: 'I', value: 'I' },
+    { label: 'O', value: 'O' },
+    { label: 'P', value: 'P' },
+    { label: '[', value: '[' },
+    { label: ']', value: ']' },
+    { label: '\\', value: '\\', widthClass: 'w-16 md:w-20' },
+  ],
+  [
+    { label: 'Caps', value: 'CapsLock', widthClass: 'w-20 md:w-24' },
+    { label: 'A', value: 'A' },
+    { label: 'S', value: 'S' },
+    { label: 'D', value: 'D' },
+    { label: 'F', value: 'F' },
+    { label: 'G', value: 'G' },
+    { label: 'H', value: 'H' },
+    { label: 'J', value: 'J' },
+    { label: 'K', value: 'K' },
+    { label: 'L', value: 'L' },
+    { label: ';', value: ';' },
+    { label: "'", value: "'" },
+    { label: 'Enter', value: 'Enter', widthClass: 'w-20 md:w-24' },
+  ],
+  [
+    { label: 'Shift', value: 'Shift', widthClass: 'w-24 md:w-28' },
+    { label: 'Z', value: 'Z' },
+    { label: 'X', value: 'X' },
+    { label: 'C', value: 'C' },
+    { label: 'V', value: 'V' },
+    { label: 'B', value: 'B' },
+    { label: 'N', value: 'N' },
+    { label: 'M', value: 'M' },
+    { label: ',', value: ',' },
+    { label: '.', value: '.' },
+    { label: '/', value: '/' },
+    { label: 'Shift', value: 'ShiftRight', widthClass: 'w-24 md:w-28' },
+  ],
+  [
+    { label: 'Ctrl', value: 'Control', widthClass: 'w-14 md:w-16' },
+    { label: 'Alt', value: 'Alt', widthClass: 'w-14 md:w-16' },
+    { label: 'Space', value: 'Space', widthClass: 'w-56 md:w-72' },
+    { label: 'Alt', value: 'AltRight', widthClass: 'w-14 md:w-16' },
+    { label: 'Ctrl', value: 'ControlRight', widthClass: 'w-14 md:w-16' },
+  ],
 ];
 
-const getKeyClassName = (key, activeKey, targetKeys) => {
-  const isActive = activeKey === key;
-  const isTarget = targetKeys.has(key);
+const getKeyClassName = (value, activeKey, targetKeys) => {
+  const isActive = activeKey === value;
+  const isTarget = targetKeys.has(value);
 
   if (isActive) {
     return 'bg-primary-500 text-white border-primary-600 shadow-lg shadow-primary-500/30';
@@ -167,7 +232,7 @@ const BeginnerLessonJSPage = () => {
 
   const expectedChar = charMap[cursorIndex]?.char ?? ' ';
   const promptKey = expectedChar === ' ' ? 'Space' : expectedChar.toUpperCase();
-  const activeKey = expectedChar === ' ' ? null : expectedChar.toUpperCase();
+  const activeKey = expectedChar === ' ' ? 'Space' : expectedChar.toUpperCase();
 
   const elapsedDisplay = useMemo(() => {
     const mins = Math.floor(elapsedSeconds / 60)
@@ -331,30 +396,18 @@ const BeginnerLessonJSPage = () => {
             <div className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Keyboard Trainer</div>
 
             <div className="space-y-2">
-              {keyboardRows.map((row) => (
-                <div key={row.join('')} className="flex justify-center gap-2">
+              {keyboardRows.map((row, rowIndex) => (
+                <div key={`row-${rowIndex}`} className="flex justify-center gap-2 flex-wrap md:flex-nowrap">
                   {row.map((key) => (
                     <div
-                      key={key}
-                      className={`h-12 w-12 md:h-14 md:w-14 rounded-lg border font-bold text-lg flex items-center justify-center transition-all ${getKeyClassName(key, activeKey, targetKeys)}`}
+                      key={key.label + key.value}
+                      className={`h-12 md:h-14 ${key.widthClass ?? 'w-12 md:w-14'} rounded-lg border font-bold text-sm md:text-base flex items-center justify-center transition-all ${getKeyClassName(key.value, activeKey, targetKeys)}`}
                     >
-                      {key}
+                      {key.label}
                     </div>
                   ))}
                 </div>
               ))}
-
-              <div className="flex justify-center pt-1">
-                <div
-                  className={`h-12 md:h-14 w-56 md:w-72 rounded-lg border font-bold text-lg flex items-center justify-center transition-all ${
-                    promptKey === 'Space'
-                      ? 'bg-primary-500 text-white border-primary-600 shadow-lg shadow-primary-500/30'
-                      : 'bg-white text-slate-500 border-slate-300'
-                  }`}
-                >
-                  Space
-                </div>
-              </div>
             </div>
           </div>
 
