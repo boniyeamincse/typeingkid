@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -29,7 +28,7 @@ const fadeUp = {
 const features = [
   {
     icon: Keyboard,
-    color: 'bg-sky-500/10 text-sky-400',
+    color: 'bg-teal-500/10 text-teal-500',
     title: 'Comprehensive Keyboarding',
     desc: 'Structured lessons from home-row basics to advanced touch typing — every finger, every key.',
   },
@@ -94,33 +93,33 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 select-none">
-          <span className="bg-sky-500 text-white rounded-lg p-1.5">
+          <span className="bg-orange-500 text-white rounded-lg p-1.5">
             <Keyboard size={18} />
           </span>
           <span className="font-extrabold text-xl text-slate-800 tracking-tight">
-            Typing<span className="text-sky-500">Kids</span>
+            Typing<span className="text-orange-500">Kids</span>
           </span>
         </Link>
 
         {/* Nav links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-          <a href="#features" className="hover:text-sky-500 transition-colors">Features</a>
-          <a href="#for-students" className="hover:text-sky-500 transition-colors">Students</a>
-          <a href="#for-educators" className="hover:text-sky-500 transition-colors">Educators</a>
-          <a href="#stats" className="hover:text-sky-500 transition-colors">Why Us</a>
+          <a href="#features" className="hover:text-orange-500 transition-colors">Features</a>
+          <a href="#for-students" className="hover:text-orange-500 transition-colors">Students</a>
+          <a href="#for-educators" className="hover:text-orange-500 transition-colors">Educators</a>
+          <a href="#stats" className="hover:text-orange-500 transition-colors">Why Us</a>
         </nav>
 
         {/* CTA buttons */}
         <div className="flex items-center gap-3">
           <Link
             to="/login"
-            className="text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors hidden sm:block"
+            className="text-sm font-semibold text-slate-700 hover:text-orange-600 transition-colors hidden sm:block"
           >
             Log In
           </Link>
           <Link
             to="/register"
-            className="text-sm font-semibold bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-full transition-colors shadow-sm"
+            className="text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full transition-colors shadow-sm"
           >
             Sign Up Free
           </Link>
@@ -132,7 +131,7 @@ function Navbar() {
 
 function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 pt-16">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-amber-300 via-orange-500 to-rose-500 pt-16">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10"
         style={{
@@ -151,7 +150,7 @@ function Hero() {
           <motion.div variants={fadeUp} custom={0}
             className="inline-flex items-center gap-2 bg-white/20 text-white text-sm font-semibold px-4 py-1.5 rounded-full mb-6"
           >
-            <Zap size={14} className="text-yellow-300" />
+            <Zap size={14} className="text-emerald-200" />
             Free · Fun · Fast
           </motion.div>
 
@@ -159,11 +158,11 @@ function Hero() {
             className="text-5xl sm:text-6xl font-extrabold leading-tight mb-6"
           >
             Learn to Type Faster<br />
-            <span className="text-yellow-300">and Easier</span> for Free
+            <span className="text-emerald-200">and Easier</span> for Free
           </motion.h1>
 
           <motion.p variants={fadeUp} custom={2}
-            className="text-lg text-sky-100 mb-10 max-w-lg leading-relaxed"
+            className="text-lg text-orange-50 mb-10 max-w-lg leading-relaxed"
           >
             Gamified typing lessons for kids and students — with real-time feedback,
             multiplayer races, and progress tracking built in.
@@ -172,7 +171,7 @@ function Hero() {
           <motion.div variants={fadeUp} custom={3} className="flex flex-wrap gap-4">
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-7 py-3.5 rounded-full transition-colors shadow-lg text-base"
+              className="inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-bold px-7 py-3.5 rounded-full transition-colors shadow-lg text-base"
             >
               Start Typing Today
               <ArrowRight size={18} />
@@ -202,7 +201,7 @@ function Hero() {
             </p>
             <Link
               to="/register"
-              className="block text-center bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold py-3 rounded-xl transition-colors text-sm"
+              className="block text-center bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-bold py-3 rounded-xl transition-colors text-sm"
             >
               Start Typing Today »
             </Link>
@@ -222,7 +221,7 @@ function Hero() {
             </p>
             <Link
               to="/register"
-              className="block text-center border-2 border-yellow-400 hover:bg-yellow-50 text-slate-800 font-bold py-3 rounded-xl transition-colors text-sm"
+              className="block text-center border-2 border-emerald-400 hover:bg-emerald-50 text-slate-800 font-bold py-3 rounded-xl transition-colors text-sm"
             >
               Create Educator Account »
             </Link>
@@ -249,12 +248,12 @@ function FeaturesSection() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="text-sky-500 font-semibold text-sm uppercase tracking-widest mb-3">
+          <p className="text-orange-500 font-semibold text-sm uppercase tracking-widest mb-3">
             Everything you need
           </p>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-800 leading-tight">
             Go Beyond Typing with<br />
-            <span className="text-sky-500">Lessons, Races & Analytics</span>
+            <span className="text-orange-500">Lessons, Races & Analytics</span>
           </h2>
         </motion.div>
 
@@ -267,7 +266,7 @@ function FeaturesSection() {
               viewport={{ once: true, amount: 0.2 }}
               custom={i}
               variants={fadeUp}
-              className="group bg-slate-50 hover:bg-white border border-slate-100 hover:border-sky-100 hover:shadow-xl rounded-2xl p-8 transition-all duration-300"
+              className="group bg-slate-50 hover:bg-white border border-slate-100 hover:border-orange-100 hover:shadow-xl rounded-2xl p-8 transition-all duration-300"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${f.color}`}>
                 <f.icon size={22} />
@@ -282,7 +281,7 @@ function FeaturesSection() {
   );
 }
 
-function AudienceSection({ id, audience, color, perks, ctaLabel }) {
+function AudienceSection({ id, audience, perks, ctaLabel }) {
   const isStudent = audience === 'Students';
   return (
     <section
@@ -298,7 +297,7 @@ function AudienceSection({ id, audience, color, perks, ctaLabel }) {
           className={isStudent ? '' : 'lg:order-2'}
         >
           <motion.p variants={fadeUp} custom={0}
-            className="text-sky-500 font-semibold text-sm uppercase tracking-widest mb-3"
+            className="text-orange-500 font-semibold text-sm uppercase tracking-widest mb-3"
           >
             {audience}
           </motion.p>
@@ -320,7 +319,7 @@ function AudienceSection({ id, audience, color, perks, ctaLabel }) {
           <motion.ul variants={fadeUp} custom={3} className="space-y-3 mb-10">
             {perks.map((p) => (
               <li key={p} className="flex items-start gap-3 text-slate-600 text-sm">
-                <CheckCircle2 size={18} className="text-sky-500 mt-0.5 shrink-0" />
+                <CheckCircle2 size={18} className="text-teal-500 mt-0.5 shrink-0" />
                 {p}
               </li>
             ))}
@@ -329,7 +328,7 @@ function AudienceSection({ id, audience, color, perks, ctaLabel }) {
           <motion.div variants={fadeUp} custom={4}>
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-bold px-7 py-3.5 rounded-full transition-colors shadow-md"
+              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-7 py-3.5 rounded-full transition-colors shadow-md"
             >
               {ctaLabel} <ChevronRight size={18} />
             </Link>
@@ -344,7 +343,7 @@ function AudienceSection({ id, audience, color, perks, ctaLabel }) {
           transition={{ duration: 0.6 }}
           className={`relative ${isStudent ? 'lg:order-2' : 'lg:order-1'}`}
         >
-          <div className={`rounded-3xl p-10 flex flex-col gap-4 shadow-2xl ${isStudent ? 'bg-gradient-to-br from-sky-400 to-blue-600' : 'bg-gradient-to-br from-violet-500 to-purple-700'}`}>
+          <div className={`rounded-3xl p-10 flex flex-col gap-4 shadow-2xl ${isStudent ? 'bg-gradient-to-br from-orange-400 to-rose-500' : 'bg-gradient-to-br from-teal-500 to-cyan-600'}`}>
             {/* Fake typing window */}
             <div className="bg-white/15 rounded-2xl p-5">
               <p className="text-xs text-white/60 mb-3 font-mono uppercase tracking-widest">
@@ -389,7 +388,7 @@ function AudienceSection({ id, audience, color, perks, ctaLabel }) {
 
 function StatsSection() {
   return (
-    <section id="stats" className="bg-sky-500 py-20">
+    <section id="stats" className="bg-teal-600 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
@@ -400,7 +399,7 @@ function StatsSection() {
           {stats.map((s, i) => (
             <motion.div key={s.label} variants={fadeUp} custom={i}>
               <div className="text-5xl font-extrabold text-white mb-1">{s.value}</div>
-              <div className="text-sky-100 text-sm font-medium">{s.label}</div>
+              <div className="text-teal-100 text-sm font-medium">{s.label}</div>
             </motion.div>
           ))}
         </motion.div>
@@ -441,7 +440,7 @@ function TestimonialsSection() {
           variants={fadeUp}
           className="text-center mb-16"
         >
-          <p className="text-sky-500 font-semibold text-sm uppercase tracking-widest mb-3">Testimonials</p>
+          <p className="text-orange-500 font-semibold text-sm uppercase tracking-widest mb-3">Testimonials</p>
           <h2 className="text-4xl font-extrabold text-slate-800">Loved by Kids &amp; Educators</h2>
         </motion.div>
 
@@ -476,7 +475,7 @@ function TestimonialsSection() {
 
 function CTASection() {
   return (
-    <section className="bg-gradient-to-br from-sky-500 to-blue-700 py-24">
+    <section className="bg-gradient-to-br from-teal-600 to-emerald-700 py-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
           initial="hidden"
@@ -489,14 +488,14 @@ function CTASection() {
             Ready to Start Your Typing Journey?
           </motion.h2>
           <motion.p variants={fadeUp} custom={1}
-            className="text-sky-100 text-lg mb-10"
+            className="text-teal-100 text-lg mb-10"
           >
             Join thousands of kids and educators already on TypingKids — completely free.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="flex flex-wrap justify-center gap-4">
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-8 py-4 rounded-full transition-colors shadow-xl text-base"
+              className="inline-flex items-center gap-2 bg-orange-400 hover:bg-orange-300 text-slate-900 font-bold px-8 py-4 rounded-full transition-colors shadow-xl text-base"
             >
               Create Free Account <ArrowRight size={18} />
             </Link>
@@ -518,17 +517,17 @@ function Footer() {
     <footer className="bg-slate-900 text-slate-400 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-2">
-          <span className="bg-sky-500 text-white rounded-lg p-1.5">
+          <span className="bg-orange-500 text-white rounded-lg p-1.5">
             <Keyboard size={16} />
           </span>
           <span className="font-extrabold text-white">
-            Typing<span className="text-sky-400">Kids</span>
+            Typing<span className="text-orange-400">Kids</span>
           </span>
         </div>
         <p className="text-sm">© {new Date().getFullYear()} TypingKids. All rights reserved.</p>
         <div className="flex gap-6 text-sm">
-          <Link to="/login" className="hover:text-sky-400 transition-colors">Log In</Link>
-          <Link to="/register" className="hover:text-sky-400 transition-colors">Sign Up</Link>
+          <Link to="/login" className="hover:text-orange-400 transition-colors">Log In</Link>
+          <Link to="/register" className="hover:text-orange-400 transition-colors">Sign Up</Link>
         </div>
       </div>
     </footer>
