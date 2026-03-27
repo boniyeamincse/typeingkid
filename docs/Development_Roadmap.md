@@ -28,16 +28,16 @@ This document outlines the granular tasks and subtasks required to build the Typ
 ## Phase 2: User Authentication & Profile Module 🔐
 
 ### 2.1 Backend Auth Logic
-- [ ] Create User model in Prisma schema.
-- [ ] Implement Registration API with password hashing (bcrypt).
-- [ ] Implement Login API with JWT issuance (Access & Refresh tokens).
-- [ ] Create middleware for JWT verification.
+- [x] Create User model in Prisma schema.
+- [x] Implement Registration API with password hashing (bcrypt).
+- [x] Implement Login API with JWT issuance (Access & Refresh tokens).
+- [x] Create middleware for JWT verification.
 
 ### 2.2 Frontend Auth Integration
-- [ ] Build Login and Registration pages.
-- [ ] Implement Redux auth slice for state management.
-- [ ] Set up axios interceptors for automatic token refreshing.
-- [ ] Add protected route wrappers for authenticated pages.
+- [x] Build Login and Registration pages.
+- [x] Implement Redux auth slice for state management.
+- [x] Set up axios interceptors for automatic token refreshing.
+- [x] Add protected route wrappers for authenticated pages.
 
 ### 2.3 Profile Management
 - [ ] Build Profile page (/profile).
@@ -49,10 +49,10 @@ This document outlines the granular tasks and subtasks required to build the Typ
 ## Phase 3: Core Typing Engine & Lessons ⌨️
 
 ### 3.1 Typing Logic Hook (Frontend)
-- [ ] Create `useTypingEngine` hook.
-- [ ] Implement real-time character matching (correct/incorrect/pending).
-- [ ] Add WPM and Accuracy calculation logic.
-- [ ] Implement backspace and cursor tracking.
+- [x] Create `useTypingEngine` hook.
+- [x] Implement real-time character matching (correct/incorrect/pending).
+- [x] Add WPM and Accuracy calculation logic.
+- [x] Implement backspace and cursor tracking.
 
 ### 3.2 Lesson Management (Backend)
 - [ ] Create Lesson and LessonProgress models.
